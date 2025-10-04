@@ -1,101 +1,129 @@
-# Distributed multi-party chat system - 作业要求分析
+# Distributed multi-party chat system - Assignment Requirements Analysis
 
-## 📋 作业目标概述
+## 📋 Overview of Assignment Objectives
 
-本项目旨在开发一个**分布式覆盖多方聊天系统**，重点关注安全通信协议的设计与实现，同时包含故意植入的安全漏洞供同行评审发现。这是一个综合性的安全编程项目，涵盖了分布式系统设计、安全协议开发、漏洞分析和同行评审等多个方面。
+This project aims to develop a **distributed multi-party chat system**, with a primary focus on designing and implementing secure communication protocols. It also deliberately embeds security vulnerabilities for peers to discover during review. Overall, it’s a comprehensive security programming assignment spanning distributed systems design, secure protocol development, vulnerability analysis, and peer review.
 
-## 🎯 核心要求分解
+## 🎯 **Core Requirements Breakdown**
 
-### 1. 分布式覆盖网络设计
-**要求**：构思和标准化安全通信协议
-**关键点**：
-- 设计覆盖网络拓扑结构
-- 定义节点间通信协议
-- 实现多方聊天机制
-- 确保协议的标准化和可扩展性
 
-**技术挑战**：
-- 网络拓扑的动态维护
-- 消息路由算法设计
-- 负载均衡和性能优化
-- 协议版本兼容性
+### 1. **Distributed Overlay Network Design**
+**Requirement:** Architect and standardize a secure communication protocol
 
-### 2. 去中心化架构
-**要求**：不能有任何中央服务器处理所有通信
-**关键点**：
-- 完全分布式的节点发现
-- 去中心化的消息路由
-- 分布式的群组管理
-- 无单点故障的架构设计
+**Key points:**
 
-**技术挑战**：
-- 分布式一致性问题
-- 网络分区处理
-- 状态同步机制
-- 冲突解决策略
+* Design the overlay network topology
+* Define the inter-node communication protocol
+* Implement multi-party (group) chat mechanics
+* Ensure the protocol is standardized and extensible
 
-### 3. 鲁棒性设计
-**要求**：系统必须对任何节点或设备故障都具有鲁棒性
-**关键点**：
-- 故障检测机制
-- 自动故障恢复
-- 网络分区容忍
-- 数据冗余和备份
+**Technical challenges:**
 
-**技术挑战**：
-- 故障检测的准确性和及时性
-- 恢复过程的效率
-- 数据一致性保证
-- 网络重组算法
+* Dynamic maintenance of the network topology
+* Message routing algorithm design
+* Load balancing and performance optimization
+* Protocol version compatibility (forward/backward)
 
-### 4. 高级安全编码实践
-**要求**：包含高级安全编码实践
-**关键点**：
-- 安全的密码学实现
-- 输入验证和输出编码
-- 内存安全管理
-- 安全的错误处理
+### 2. Decentralized Architecture
 
-**技术挑战**：
-- 密钥管理的安全性
-- 侧信道攻击防护
-- 时序攻击防护
-- 安全随机数生成
+**Requirement:** No single central server may handle all communications.
 
-### 5. 故意植入漏洞
-**要求**：故意以合乎道德的方式对自己的实现进行后门攻击
-**关键点**：
-- 设计隐蔽的安全漏洞
-- 确保漏洞的可发现性
-- 维护系统基本功能
-- 记录漏洞设计意图
+**Key points:**
 
-**技术挑战**：
-- 漏洞的隐蔽性设计
-- 避免影响核心功能
-- 漏洞的复杂度控制
-- 道德边界的把握
+* Fully distributed node discovery
+* Decentralized message routing
+* Distributed group (multi-party) management
+* Architecture with no single point of failure (SPOF)
 
-### 6. 同行评审准备
-**要求**：执行同行评审并进行手动和自动代码分析
-**关键点**：
-- 准备代码审查材料
-- 创建漏洞发现指南
-- 设计测试用例
-- 编写分析报告
+**Technical challenges:**
 
-**技术挑战**：
-- 评审材料的完整性
-- 漏洞提示的适度性
-- 测试覆盖率
-- 文档质量
+* Distributed consistency
+* Handling network partitions
+* State synchronization mechanisms
+* Conflict resolution strategies
 
-## 🏗️ 系统架构设计
+### 3. Robustness by Design
 
-### 分布式覆盖网络架构
+**Requirement:** The system must remain robust in the face of any node or device failures.
+
+**Key points:**
+
+* Failure detection mechanisms
+* Automatic (self-healing) recovery
+* Tolerance of network partitions
+* Data redundancy and backups
+
+**Technical challenges:**
+
+* Accuracy and timeliness of failure detection
+* Efficiency of the recovery process
+* Guarantees of data consistency
+* Algorithms for network reconfiguration
+
+
+### 4. Advanced Secure Coding Practices
+
+**Requirement:** Incorporate advanced secure coding practices.
+
+**Key points:**
+
+* Secure cryptographic implementations
+* Input validation and output encoding
+* Memory-safe management
+* Secure error handling
+
+**Technical challenges:**
+
+* Secure key management
+* Side-channel attack mitigation
+* Timing-attack resistance
+* Cryptographically secure random number generation
+
+
+### 5. Deliberately Planted Vulnerabilities
+
+**Requirement:** Conduct a controlled, ethically scoped backdoor attack on your own implementation.
+
+**Key points:**
+
+* Design a subtle security weakness
+* Ensure the weakness is discoverable through review
+* Preserve core system functionality
+* Document the rationale and intent behind the flaw
+
+**Technical challenges:**
+
+* Balancing subtlety and detectability
+* Avoiding impact on critical features
+* Controlling the complexity of the weakness
+* Staying within clear ethical boundaries
+
+
+### 6. Peer Review Readiness
+
+**Requirement:** Carry out peer review and perform both manual and automated code analysis.
+
+**Key points:**
+
+* Prepare materials for code review
+* Create a vulnerability discovery guide
+* Design test cases
+* Write an analysis report
+
+**Technical challenges:**
+
+* Ensuring completeness of review materials
+* Providing just-enough hints for finding vulnerabilities
+* Achieving adequate test coverage
+* Maintaining high documentation quality
+
+
+## 🏗️ **System Architecture Design**
+
+### **Distributed Overlay Network Architecture**
 
 ```
-                    分布式覆盖网络
+                Distributed Overlay Network
     ┌─────────────────────────────────────────────────┐
     │                                                 │
     │  Node A ←→ Node B ←→ Node C ←→ Node D ←→ Node E  │
@@ -107,16 +135,17 @@
     └─────────────────────────────────────────────────┘
 ```
 
-**特点**：
-- 每个节点维护多个邻居连接
-- 支持动态加入和离开
-- 自动网络拓扑重组
-- 多路径消息传递
+**Characteristics:**
 
-### 多方聊天群组架构
+* Each node maintains connections to multiple neighbors
+* Supports dynamic join and leave (churn)
+* Automatic topology reconfiguration
+* Multi-path message delivery
+
+### **Multi-party Group Chat Architecture**
 
 ```
-        群组管理分布式架构
+ Distributed Group Management Architecture
     ┌─────────────────────────────┐
     │      Group Alpha            │
     │  ┌─────┐  ┌─────┐  ┌─────┐  │
@@ -132,150 +161,162 @@
     └─────────────────────────────┘
 ```
 
-**特点**：
-- 节点可以同时参与多个群组
-- 分布式群组成员管理
-- 群组消息的高效广播
-- 动态群组创建和解散
+**Characteristics:**
 
-## 🔐 安全协议设计
+* Nodes can participate in multiple groups simultaneously
+* Distributed membership management
+* Efficient broadcast of group messages
+* Dynamic group creation and dissolution
 
-### 分层安全架构
+## 🔐 **Secure Protocol Design**
+
+### **Layered Security Architecture**
 
 ```
 ┌─────────────────────────────────────────┐
-│           应用层安全                      │
+│       Application-layer Security         │
 │  ┌─────────────┐ ┌─────────────────────┐ │
-│  │ 消息完整性   │ │ 群组访问控制         │ │
+│  │ Message     | |                     | |
+|  | Integrity   | | Group Access Control| |
+|  |             | |                     | |
 │  └─────────────┘ └─────────────────────┘ │
 ├─────────────────────────────────────────┤
-│           传输层安全                      │
+│        Transport-layer Security         │
 │  ┌─────────────┐ ┌─────────────────────┐ │
-│  │ 端到端加密   │ │ 身份认证            │ │
+│  │ End-to-end  | |   Authentication    | |
+|  | Encryption  | |                     | |
 │  └─────────────┘ └─────────────────────┘ │
 ├─────────────────────────────────────────┤
-│           网络层安全                      │
+│          Network-layer Security          |
 │  ┌─────────────┐ ┌─────────────────────┐ │
-│  │ 路由安全     │ │ 节点发现安全         │ │
+│  │  Routing    | |    Node Discovery   | |        
+|  |  Security   | |     Security        | |
 │  └─────────────┘ └─────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
 
-### 密钥管理协议
+### Key Management Protocol
 
-1. **节点身份密钥**
-   - 每个节点生成唯一的RSA密钥对
-   - 公钥作为节点身份标识
-   - 私钥用于数字签名和身份认证
+1. **Node Identity Keys**
 
-2. **群组会话密钥**
-   - 群组创建时生成AES群组密钥
-   - 使用Diffie-Hellman协议协商
-   - 支持密钥轮换和前向安全
+   * Each node generates a unique RSA key pair.
+   * The public key serves as the node’s identity.
+   * The private key is used for digital signatures and authentication.
 
-3. **通信会话密钥**
-   - 节点间建立临时会话密钥
-   - 定期更新确保前向安全
-   - 支持密钥恢复机制
+2. **Group Session Keys**
 
-## 🛡️ 故障恢复机制
+   * An AES group key is created when a group is formed.
+   * Negotiated via the Diffie–Hellman protocol.
+   * Supports key rotation and forward secrecy.
 
-### 节点故障检测
+3. **Communication Session Keys**
+
+   * Ephemeral session keys are established between nodes.
+   * Periodically rekeyed to maintain forward secrecy.
+   * Supports key recovery mechanisms.
+
+## 🛡️ **Failure Recovery Mechanisms**
+
+### **Node Failure Detection**
 
 ```java
-// 心跳检测机制
+// Heartbeat Monitoring Mechanism
 public class HeartbeatMonitor {
-    private static final int HEARTBEAT_INTERVAL = 30000; // 30秒
-    private static final int FAILURE_THRESHOLD = 3;      // 3次失败
+    private static final int HEARTBEAT_INTERVAL = 30000; // Every 30 seconds.
+    private static final int FAILURE_THRESHOLD = 3;      // 3 failures
     
     public void startMonitoring(String nodeId) {
-        // 定期发送心跳包
-        // 检测响应超时
-        // 标记故障节点
+        // Send heartbeat packets periodically.
+        // Detect response timeouts.
+        // Mark failed nodes.
     }
 }
 ```
 
-### 网络分区处理
+### **Network Partition Handling**
 
 ```java
-// 网络分区检测和处理
+// Network Partition Detection and Handling
 public class PartitionHandler {
     public void detectPartition() {
-        // 检测网络连通性
-        // 识别分区边界
-        // 触发重组机制
+        // Check network connectivity.
+        // Identify partition boundaries.
+        // Trigger reconfiguration.
     }
     
     public void handlePartition() {
-        // 选择分区协调者
-        // 维护分区内一致性
-        // 准备分区合并
+        // Elect a partition coordinator.
+        // Maintain intra-partition consistency.
+        // Prepare for partition merge.
     }
 }
 ```
 
-### 自动恢复机制
+### **Automatic Recovery Mechanism**
 
 ```java
-// 自动故障恢复
+// Automatic failure recovery.
 public class RecoveryManager {
     public void recoverFromFailure(FailureType type) {
         switch (type) {
             case NODE_FAILURE:
-                // 重新路由消息
-                // 更新邻居表
+                // Reroute messages.
+                // Update the neighbor table.
                 break;
             case NETWORK_PARTITION:
-                // 分区合并
-                // 状态同步
+                // Partition merge.
+                // State synchronization.
                 break;
             case DATA_CORRUPTION:
-                // 数据恢复
-                // 一致性检查
+                // Data recovery.
+                // Consistency check.
                 break;
         }
     }
 }
 ```
 
-## 🎭 故意漏洞设计策略
+## 🎭 **Deliberate Vulnerability Design Strategy**
 
-### 漏洞类型规划
+### Vulnerability type planning.
 
-1. **密码学漏洞**
-   - 弱随机数生成
-   - 密钥重用问题
-   - 时序攻击漏洞
-   - 侧信道信息泄露
+1. **Cryptographic Vulnerabilities**
 
-2. **协议漏洞**
-   - 重放攻击漏洞
-   - 中间人攻击点
-   - 身份验证绕过
-   - 消息注入漏洞
+   * Weak random number generation
+   * Key reuse
+   * Timing-attack exposure
+   * Side-channel leakage
 
-3. **实现漏洞**
-   - 缓冲区溢出
-   - 输入验证不足
-   - 竞态条件
-   - 内存泄露
+2. **Protocol Vulnerabilities**
 
-4. **逻辑漏洞**
-   - 权限提升
-   - 访问控制绕过
-   - 状态机错误
-   - 业务逻辑缺陷
+   * Replay attacks
+   * Man-in-the-middle (MITM) footholds
+   * Authentication bypass
+   * Message injection
 
-### 漏洞隐蔽性设计
+3. **Implementation Vulnerabilities**
+
+   * Buffer overflows
+   * Insufficient input validation
+   * Race conditions
+   * Memory leaks
+
+4. **Logic Vulnerabilities**
+
+   * Privilege escalation
+   * Access control bypass
+   * State machine errors
+   * Business logic flaws
+
+### **Stealthy Vulnerability Design**
 
 ```java
-// 示例：隐蔽的密钥重用漏洞
+// Example: Stealthy Key Reuse Vulnerability
 public class KeyManager {
     private static final Map<String, SecretKey> keyCache = new HashMap<>();
     
     public SecretKey generateSessionKey(String sessionId) {
-        // 故意漏洞：在特定条件下重用密钥
+        // Deliberate Vulnerability: Key Reuse Under Specific Conditions
         if (sessionId.startsWith("admin_")) {
             return keyCache.computeIfAbsent("admin_master", 
                 k -> generateNewKey());
@@ -285,104 +326,117 @@ public class KeyManager {
 }
 ```
 
-### 漏洞发现提示
+### **Vulnerability Discovery Hints**
 
-1. **代码注释提示**
+1. **Code comments**
    ```java
-   // TODO: 检查这里的随机数生成是否足够安全
-   // FIXME: 临时实现，需要改进验证逻辑
-   // NOTE: 这个函数在高并发下可能有问题
+   // TODO: Verify RNG strength here
+   // FIXME: Temporary implementation; improve validation
+   // NOTE: May break under high concurrency
    ```
 
-2. **测试用例提示**
+2. **Test case**
    ```java
    @Test
    public void testAdminSessionSecurity() {
-       // 测试管理员会话的特殊处理
-       // 注意检查密钥管理的一致性
+       // Special handling for admin sessions
+       // Check consistency of key management
    }
    ```
 
-3. **文档提示**
+3. **Documentation**
    ```markdown
-   ## 已知限制
-   - 当前实现在某些边界条件下可能存在安全风险
-   - 建议对管理员权限进行额外的安全审查
-   - 高并发场景下的线程安全性需要进一步验证
+   ## Known Limitations
+   - Potential security risks under certain edge conditions
+   - Admin privileges require extra security review
+   - Thread safety under high concurrency needs further verification
    ```
 
-## 📊 评估指标
+## 📊 **Evaluation Metrics**
 
-### 功能性指标
-- **消息传递成功率**：> 99%
-- **节点故障恢复时间**：< 30秒
-- **网络分区恢复时间**：< 60秒
-- **群组管理响应时间**：< 5秒
+### Functional Metrics
 
-### 安全性指标
-- **加密覆盖率**：100%
-- **身份验证成功率**：> 99.9%
-- **漏洞发现率**：目标50-80%
-- **误报率**：< 10%
+* **Message delivery success rate:** > 99%
+* **Node failure recovery time:** < 30s
+* **Network partition recovery time:** < 60s
+* **Group management response time:** < 5s
 
-### 性能指标
-- **消息延迟**：< 100ms
-- **吞吐量**：> 1000 msg/s
-- **内存使用**：< 512MB
-- **CPU使用率**：< 50%
+### Security Metrics
 
-## 🔄 开发计划
+* **Encryption coverage:** 100%
+* **Authentication success rate:** > 99.9%
+* **Vulnerability discovery rate:** target 50–80%
+* **False positive rate:** < 10%
 
-### Phase 1: 基础架构 (当前)
-- 项目迁移和环境设置
-- 基础分布式网络实现
-- 核心安全组件集成
+### Performance Metrics
 
-### Phase 2: 覆盖网络 (下一步)
-- 分布式拓扑管理
-- 动态路由算法
-- 负载均衡机制
+* **Message latency:** < 100 ms
+* **Throughput:** > 1,000 msg/s
+* **Memory usage:** < 512 MB
+* **CPU utilization:** < 50%
 
-### Phase 3: 多方聊天
-- 群组管理协议
-- 消息广播机制
-- 状态同步算法
+## 🔄 **Development Plan**
 
-### Phase 4: 故障恢复
-- 故障检测系统
-- 自动恢复机制
-- 网络分区处理
+### Phase 1: Infrastructure (Current)
 
-### Phase 5: 安全强化
-- 高级安全实践
-- 漏洞植入设计
-- 安全测试框架
+* Project migration & environment setup
+* Basic distributed networking
+* Integration of core security components
 
-### Phase 6: 评审准备
-- 文档完善
-- 测试用例编写
-- 漏洞发现指南
+### Phase 2: Overlay Network (Next)
 
-## 🎯 成功标准
+* Distributed topology management
+* Dynamic routing algorithms
+* Load balancing mechanisms
 
-1. **系统功能完整性**
-   - 实现完整的多方聊天功能
-   - 支持动态节点加入/离开
-   - 具备故障自动恢复能力
+### Phase 3: Multi-party Chat
 
-2. **安全协议标准化**
-   - 协议文档完整清晰
-   - 安全机制设计合理
-   - 实现符合最佳实践
+* Group management protocol
+* Message broadcast mechanism
+* State synchronization algorithms
 
-3. **漏洞设计合理性**
-   - 漏洞具有一定隐蔽性
-   - 不影响核心功能
-   - 具备教育价值
+### Phase 4: Failure Recovery
 
-4. **评审材料质量**
-   - 代码结构清晰
-   - 文档详细完整
-   - 测试覆盖充分
+* Failure detection system
+* Automatic recovery mechanisms
+* Network partition handling
 
-这个分析为后续的开发工作提供了清晰的方向和具体的实施计划。接下来我们将按照这个框架逐步实现一个功能完整、安全可靠、同时包含教育性漏洞的分布式聊天系统。
+### Phase 5: Security Hardening
+
+* Advanced secure coding practices
+* Deliberate vulnerability design
+* Security testing framework
+
+### Phase 6: Review Readiness
+
+* Documentation polish
+* Test case authoring
+* Vulnerability discovery guide
+
+## 🎯 **Success Criteria**
+
+1. **System Functionality Completeness**
+
+   * Full multi-party chat implemented
+   * Supports dynamic node join/leave
+   * Automatic failure recovery
+
+2. **Security Protocol Standardization**
+
+   * Clear, complete protocol documentation
+   * Sound security mechanisms
+   * Implementation aligns with best practices
+
+3. **Rational Vulnerability Design**
+
+   * Sufficiently stealthy
+   * No impact on core functionality
+   * Educational value
+
+4. **Quality of Review Materials**
+
+   * Clean code structure
+   * Detailed, complete documentation
+   * Adequate test coverage
+
+This analysis gives us a clear direction and a concrete implementation plan. Next, we’ll follow this framework to build a fully functional, secure, and reliable distributed chat system that also includes educational, intentionally planted vulnerabilities.
