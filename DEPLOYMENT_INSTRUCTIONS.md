@@ -1,102 +1,115 @@
-# P2P Chat 部署说明
+# P2P Chat — Deployment Guide
 
-## 🚀 最新更新 (2025-09-29)
+## 🚀 Latest Update (2025-09-29)
 
-已推送包含所有文件传输修复的最新代码到GitHub。
+The newest code, including all file-transfer fixes, has been pushed to GitHub.
 
-## 📋 部署步骤
+## 📋 Deployment Steps
 
-### 1. 下载最新代码
+### 1) Get the latest code
+
 ```bash
 git clone https://github.com/WebProjectTest114514/P2pChat.git
 cd P2pChat
 ```
 
-或者如果已有代码：
+If you already have a local copy:
+
 ```bash
 git pull origin main
 ```
 
-### 2. 编译项目
+### 2) Build the project
+
 ```bash
 mvn clean package -DskipTests
 ```
 
-### 3. 验证文件存在
-确保以下文件存在：
-- `target/p2p-chat-1.0-SNAPSHOT.jar` (主要JAR文件)
-- `src/main/java/com/group7/chat/FileTransferService.java` (包含修复)
-- `src/main/java/com/group7/chat/AddressParsingTest.java` (测试工具)
+### 3) Verify required files
 
-### 4. 启动节点
+Make sure the following exist:
 
-**节点1 (端口8080):**
+* `target/p2p-chat-1.0-SNAPSHOT.jar` (main JAR)
+* `src/main/java/com/group7/chat/FileTransferService.java` (contains the fixes)
+* `src/main/java/com/group7/chat/AddressParsingTest.java` (test utility)
+
+### 4) Start the nodes
+
+**Node 1 (port 8080):**
+
 ```bash
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 8080
 ```
 
-**节点2 (端口8081):**
+**Node 2 (port 8081):**
+
 ```bash
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 8081
 ```
 
-## 🔍 验证修复成功
+## 🔍 Validate the Fix
 
-### 预期的调试输出
+### Expected debug output
 
-当您尝试发送文件时，应该看到详细的调试信息：
+When you attempt a file transfer, you should see detailed logs like:
 
 ```
-[文件传输] 开始处理文件发送请求
-[文件传输] 目标节点ID: broadcast
-[文件传输] 文件: filename.png (12345 bytes)
-[文件传输] 保存路径: filename.png
-[文件传输] 广播模式，当前连接数: 1
-[文件传输] 广播模式，选择连接: localhost/127.0.0.1:9081
-[文件传输] 连接的远程节点ID: e5ec6c83...
-[文件传输] 原始地址: localhost/127.0.0.1:9081, 标准化地址: 127.0.0.1:9081
-[文件传输] 解析结果 - 主机: 127.0.0.1, 基础端口: 9081, 文件传输端口: 10081
-[文件传输] 准备连接到: 127.0.0.1:10081
-[文件传输] 发送头信息: SEND:transfer_xxx:filename.png:12345:filename.png
-[文件传输] 发送进度: 100% (12345/12345 bytes)
-[文件传输] 文件发送完成: filename.png (12345 bytes)
+[File Transfer] Start processing file send request
+[File Transfer] Target node ID: broadcast
+[File Transfer] File: filename.png (12345 bytes)
+[File Transfer] Save path: filename.png
+[File Transfer] Broadcast mode, current connection count: 1
+[File Transfer] Broadcast mode, chosen connection: localhost/127.0.0.1:9081
+[File Transfer] Connected remote node ID: e5ec6c83...
+[File Transfer] Original address: localhost/127.0.0.1:9081, normalized address: 127.0.0.1:9081
+[File Transfer] Parse result — host: 127.0.0.1, base port: 9081, file-transfer port: 10081
+[File Transfer] Preparing to connect to: 127.0.0.1:10081
+[File Transfer] Sending header: SEND:transfer_xxx:filename.png:12345:filename.png
+[File Transfer] Send progress: 100% (12345/12345 bytes)
+[File Transfer] File sent: filename.png (12345 bytes)
 ```
 
-### 如果仍然只看到旧格式
+### If you still see the old format
 
-如果您仍然只看到：
+If you only see:
+
 ```
-[文件传输] 开始发送文件到 broadcast (localhost/127.0.0.1:9081)
+[File Transfer] Start sending file to broadcast (localhost/127.0.0.1:9081)
 ```
 
-这说明您使用的仍然是旧版本。请：
+you’re still on an old build. Please:
 
-1. **确认下载了最新代码**
-2. **重新编译项目**
-3. **使用新生成的JAR文件**
+1. **Confirm you pulled the latest code**
+2. **Rebuild the project**
+3. **Run the newly generated JAR**
 
-## 🐛 故障排除
+## 🐛 Troubleshooting
 
-### 问题1：私聊文件没有落地
-- 检查程序运行目录
-- 查看是否有权限问题
-- 确认接收方显示了完整的传输日志
+### Issue 1: Private-chat files don’t appear on disk
 
-### 问题2：群聊文件传输失败
-- 确保两个节点都已连接
-- 检查防火墙设置
-- 观察详细的调试输出
+* Check the program’s working directory
+* Verify file system permissions
+* Confirm the receiver shows the full transfer log
 
-### 问题3：仍然看不到详细日志
-- 重新下载代码：`git clone https://github.com/WebProjectTest114514/P2pChat.git`
-- 删除旧的target目录：`rm -rf target`
-- 重新编译：`mvn clean package -DskipTests`
+### Issue 2: Group-chat file transfer fails
 
-## 📞 支持
+* Ensure both nodes are connected
+* Check firewall rules
+* Watch the detailed debug output
 
-如果按照以上步骤操作后仍有问题，请提供：
-1. 完整的启动日志
-2. 文件传输尝试的完整日志
-3. 使用的操作系统和Java版本
+### Issue 3: Still no verbose logs
 
-最新代码已包含所有修复，应该能解决文件传输问题。
+* Re-clone: `git clone https://github.com/WebProjectTest114514/P2pChat.git`
+* Remove old build output: `rm -rf target`
+* Rebuild: `mvn clean package -DskipTests`
+
+## 📞 Support
+
+If problems persist, please provide:
+
+1. Full startup logs
+2. Full logs from the file-transfer attempt
+3. Your OS and Java versions
+
+The latest code includes all fixes and should resolve the file-transfer issues.
+
