@@ -1,36 +1,43 @@
-# 文件传输问题修复报告
+# File Transfer Issue Fix Report
 
-## 🐛 问题分析
+## 🐛 Problem Analysis
 
-### 原始问题
-从用户日志中发现：
+### Original Issue
+
+From the user logs:
+
 ```
-[文件传输] 开始发送文件到 broadcast (/127.0.0.1:54436)
-发送文件失败: /127.0.0.1
+[File Transfer] Starting to send file to broadcast (/127.0.0.1:54436)
+File send failed: /127.0.0.1
 ```
 
-### 根本原因
-1. **错误的地址获取**：
-   - 原代码使用 `node.getNodeAddresses()` 获取**自己的地址列表**
-   - 应该获取**目标节点的连接地址**
+### Root Causes
 
-2. **地址解析错误**：
-   - 没有正确处理连接对象中的远程地址
-   - 端口计算基于错误的地址信息
+1. **Incorrect address retrieval:**
 
-3. **广播模式问题**：
-   - "broadcast" 模式没有正确实现
-   - 应该发送给所有连接的节点，而不是使用错误的地址
+   * The original code uses `node.getNodeAddresses()` to get **the local node’s own address list**.
+   * It should fetch **the target peer’s connection address** instead.
 
-## ✅ 修复方案
+2. **Address parsing errors:**
 
-### 1. 正确的地址获取
+   * The remote address from the connection object wasn’t parsed correctly.
+   * Port computation was based on incorrect address data.
+
+3. **Broadcast mode issues:**
+
+   * The “broadcast” mode was not implemented correctly.
+   * It should send to all connected peers, rather than using an incorrect address.
+
+## ✅ Fix Plan
+
+### 1) Correct address retrieval
+
 ```java
-// 修复前：获取自己的地址（错误）
+// Before: retrieving local addresses (incorrect)
 List<String> addresses = node.getNodeAddresses();
 String targetAddress = addresses.isEmpty() ? null : addresses.get(0);
 
-// 修复后：获取目标节点的连接地址（正确）
+// After: retrieve the target peer's connection address (correct)
 String targetAddress = null;
 if ("broadcast".equals(targetNodeId)) {
     var connections = node.getConnections();
@@ -48,94 +55,98 @@ if ("broadcast".equals(targetNodeId)) {
 }
 ```
 
-### 2. 改进的错误处理
-- 添加了详细的错误信息
-- 向GUI显示具体的失败原因
-- 更好的地址格式验证
+### 2) Improved error handling
 
-### 3. 地址标准化
-- 将 "localhost" 统一转换为 "127.0.0.1"
-- 确保地址格式的一致性
+* Added more informative error messages.
+* Surfaces specific failure reasons in the GUI.
+* Better validation of address formats.
 
-## 🎯 预期效果
+### 3) Address normalization
 
-修复后的文件传输应该：
+* Convert `localhost` to `127.0.0.1` consistently.
+* Ensure a uniform address format.
 
-1. **正确识别目标**：
+## 🎯 Expected Behavior
+
+After the fix, file transfer should:
+
+1. **Identify targets correctly:**
+
    ```
-   [文件传输] 广播模式，发送给: 127.0.0.1:8080
-   [文件传输] 开始发送文件到 broadcast (127.0.0.1:9080)
+   [File Transfer] Broadcast mode — sending to: 127.0.0.1:8080
+   [File Transfer] Starting to send file to broadcast (127.0.0.1:9080)
    ```
 
-2. **成功建立连接**：
-   - 使用正确的目标地址和端口
-   - 连接到目标节点的文件传输服务
+2. **Establish connections successfully:**
 
-3. **完整的传输过程**：
-   - 显示传输进度
-   - 成功完成文件传输
-   - 向GUI显示成功消息
+   * Use the correct target host and port.
+   * Connect to the target node’s file-transfer service.
 
-## 🔧 测试建议
+3. **Complete the transfer flow:**
 
-1. **启动两个节点**
-2. **确保连接成功**
-3. **尝试发送文件**
-4. **观察控制台日志**：
-   - 应该看到正确的目标地址
-   - 应该看到传输进度信息
-   - 应该看到传输完成消息
+   * Show transfer progress.
+   * Complete the transfer successfully.
+   * Display a success message in the GUI.
 
-## 📋 相关文件
+## 🔧 Test Recommendations
 
-- `FileTransferService.java` - 主要修复文件
-- `PeerConnection.java` - 提供远程地址信息
-- `Node.java` - 管理连接集合
+1. **Start two nodes**
+2. **Ensure the connection is established**
+3. **Attempt a file transfer**
+4. **Watch the console logs:**
 
-修复已完成，文件传输功能现在应该能正常工作。
+   * You should see the correct target address
+   * You should see progress updates
+   * You should see a transfer completion message
 
+## 📋 Related Files
 
+* `FileTransferService.java` — main fixes
+* `PeerConnection.java` — provides remote address info
+* `Node.java` — manages the connection set
 
-## 🚀 最终验证
+The fix has been applied, and file transfer should now work as expected.
 
-通过专门的自动化测试程序 `FileTransferTest.java` 对修复后的功能进行了端到端验证。测试结果表明，文件传输功能已完全修复。
+## 🚀 Final Verification
 
-### 测试日志摘要
+End-to-end verification was performed using the dedicated automation **`FileTransferTest.java`**. Results confirm the file transfer feature is fully restored.
+
+### Test Log Summary
 
 ```
 ======================================
-P2P 文件传输功能测试
+P2P File Transfer Function Test
 ======================================
-创建测试节点...
-启动节点...
-连接节点...
-连接建立成功！
-测试文件: test-file.txt (347 bytes)
-开始文件传输测试...
-[文件传输] 广播模式，发送给: 127.0.0.1:8080
-[文件传输] 开始发送文件到 broadcast (127.0.0.1:9080)
-[文件传输] 原始地址: 127.0.0.1:8080, 标准化地址: 127.0.0.1:8080
-[文件传输] 解析结果 - 主机: 127.0.0.1, 基础端口: 8080, 文件传输端口: 9080
-[文件传输] 接受新的文件传输连接
-[文件传输] 发送头信息: SEND:transfer_1759114681646_967:test-file.txt:347:received-test-file.txt
-[文件传输] 文件发送完成: test-file.txt (347 bytes)
-[文件传输] 开始接收文件: test-file.txt → received-test-file.txt
-[文件传输] 文件接收完成: test-file.txt (347 bytes)
-[文件传输] 保存位置: received-test-file.txt
-[文件传输] 文件大小验证通过
-[文件传输] 文件成功保存，大小: 347 bytes
-文件传输测试完成
-停止节点...
-测试完成
+Creating test nodes...
+Starting nodes...
+Connecting nodes...
+Connection established!
+Test file: test-file.txt (347 bytes)
+Starting file transfer test...
+[File Transfer] Broadcast mode — sending to: 127.0.0.1:8080
+[File Transfer] Starting to send file to broadcast (127.0.0.1:9080)
+[File Transfer] Original address: 127.0.0.1:8080, normalized address: 127.0.0.1:8080
+[File Transfer] Parse result — host: 127.0.0.1, base port: 8080, file-transfer port: 9080
+[File Transfer] Accepting new file-transfer connection
+[File Transfer] Sending header: SEND:transfer_1759114681646_967:test-file.txt:347:received-test-file.txt
+[File Transfer] File sent: test-file.txt (347 bytes)
+[File Transfer] Start receiving file: test-file.txt → received-test-file.txt
+[File Transfer] File received: test-file.txt (347 bytes)
+[File Transfer] Save path: received-test-file.txt
+[File Transfer] File size check passed
+[File Transfer] File saved successfully, size: 347 bytes
+File transfer test completed
+Stopping nodes...
+Test finished
 ```
 
-### 结论
+### Conclusion
 
-关键问题已解决：
+The key issues have been resolved:
 
-1.  **地址解析**：`PeerConnection.getRemoteAddress()` 现在能正确处理并返回不带前缀斜杠的地址，解决了核心的地址格式问题。
-2.  **端口计算**：`FileTransferService` 中的端口计算逻辑现在基于正确的地址，能够准确连接到目标节点的文件传输服务。
-3.  **错误处理**：增加了更详细的日志和用户提示，方便未来调试。
+1. **Address parsing:** `PeerConnection.getRemoteAddress()` now returns addresses without a leading slash, fixing the core format problem.
+2. **Port computation:** `FileTransferService` now computes ports from the correct address and connects reliably to the peer’s file-transfer service.
+3. **Error handling:** More detailed logs and user-facing hints make future debugging easier.
 
-文件传输功能现已稳定可靠。
+The file transfer feature is now stable and reliable.
 
