@@ -1,58 +1,61 @@
-# 二进制文件传输协议指南
+# Binary File Transfer Protocol Guide
 
-## 🚀 重大更新：全新二进制协议
+## 🚀 Major Update: Brand-new Binary Protocol
 
-我已经完全重新设计了文件传输协议，使用更可靠的二进制协议来解决之前遇到的所有问题。
+I’ve completely redesigned the file transfer protocol, adopting a more reliable binary format to resolve all previously encountered issues.
 
-## 🔍 问题根源分析
+## 🔍 Root Cause Analysis
 
-从您的调试日志可以看出，问题出现在：
-1. **文本协议不可靠**：使用换行符分隔头信息容易出错
-2. **流状态混乱**：BufferedReader和InputStream混用导致数据丢失
-3. **编码问题**：文本编码在不同系统间可能不一致
+From your debug logs, the issues stem from:
 
-## ✨ 新协议设计
+1. **Unreliable text protocol:** Using newline-delimited headers is error-prone.
+2. **Mixed stream state:** Combining `BufferedReader` and `InputStream` leads to data loss.
+3. **Encoding pitfalls:** Text encodings may differ across systems.
 
-### 协议结构
+## ✨ New Protocol Design
+
+### Frame Layout
+
 ```
-[4字节头长度] + [头信息] + [文件数据]
+[4-byte header length] + [header] + [file data]
+```
+### Details
+
+1. **Header Length:** 4-byte big-endian integer indicating the header’s byte length.
+2. **Header:** UTF-8 string in the form `SEND:sessionId:fileName:fileSize:savePath`.
+3. **File Data:** Raw binary file payload.
+
+### Example
+
+```
+Sender:
+1. Compute header length: 85 bytes
+2. Send: [0x00][0x00][0x00][0x55] (big-endian encoding of 85)
+3. Send: SEND:transfer_123:image.png:3827:C:\Users\lenovo\Desktop\image.png
+4. Send: [3827 bytes of file data]
+
+Receiver:
+1. Read 4 bytes to get header length: 85
+2. Read 85 bytes to get the header
+3. Parse the header to obtain filename, size, and save path
+4. Read 3827 bytes of file data and save it
 ```
 
-### 详细格式
-1. **头长度**：4字节大端序整数，表示头信息的字节长度
-2. **头信息**：UTF-8编码的字符串，格式：`SEND:sessionId:fileName:fileSize:savePath`
-3. **文件数据**：原始二进制文件数据
+## 🔧 Technical Improvements
 
-### 示例
-```
-发送端：
-1. 计算头信息长度：85字节
-2. 发送：[0x00][0x00][0x00][0x55] (85的大端序表示)
-3. 发送：SEND:transfer_123:image.png:3827:C:\Users\lenovo\Desktop\image.png
-4. 发送：[文件的3827字节数据]
-
-接收端：
-1. 读取4字节获得头长度：85
-2. 读取85字节获得头信息
-3. 解析头信息获得文件名、大小、保存路径
-4. 读取3827字节文件数据并保存
-```
-
-## 🔧 技术改进
-
-### 1. 可靠的数据读取
+### 1. Reliable Data Reads
 ```java
-// 确保完整读取指定字节数
+// Ensure the specified number of bytes are fully read
 while (bytesRead < targetLength) {
     int read = inputStream.read(buffer, bytesRead, targetLength - bytesRead);
-    if (read == -1) throw new IOException("连接意外关闭");
+    if (read == -1) throw new IOException("Connection closed unexpectedly");
     bytesRead += read;
 }
 ```
 
-### 2. 精确的文件大小控制
+### 2. **Precise File Size Control**
 ```java
-// 只读取文件大小指定的字节数
+// Read only the number of bytes specified by the file size.
 while (totalReceived < fileSize) {
     int remainingBytes = (int) Math.min(buffer.length, fileSize - totalReceived);
     bytesRead = inputStream.read(buffer, 0, remainingBytes);
@@ -60,91 +63,103 @@ while (totalReceived < fileSize) {
 }
 ```
 
-### 3. 完整的错误检测
-- 连接状态检测
-- 文件大小验证
-- 文件存在性验证
-- 详细的错误日志
+### 3. Comprehensive Error Detection
 
-## 📋 新的调试输出
+* Connection health checks
+* File size validation
+* File existence checks
+* Detailed error logging
 
-现在您应该看到这样的日志：
+## 📋 New Debug Output
+
+You should now see logs like:
+
 ```
-[文件传输] 接受新的文件传输连接
-[文件传输] 头信息长度: 85
-[文件传输] 收到传输头: SEND:transfer_123:image.png:3827:C:\Users\lenovo\Desktop\image.png
-[文件传输] 开始接收文件: image.png → C:\Users\lenovo\Desktop\image.png
-[文件传输] 期望文件大小: 3827 bytes
-[文件传输] 接收进度: 100% (3827/3827 bytes)
-[文件传输] 文件接收完成: image.png (3827 bytes)
-[文件传输] 保存位置: C:\Users\lenovo\Desktop\image.png
-[文件传输] 文件大小验证通过
-[文件传输] 文件成功保存，大小: 3827 bytes
+[File Transfer] Accepted a new file-transfer connection
+[File Transfer] Header length: 85
+[File Transfer] Received header: SEND:transfer_123:image.png:3827:C:\Users\lenovo\Desktop\image.png
+[File Transfer] Start receiving: image.png → C:\Users\lenovo\Desktop\image.png
+[File Transfer] Expected size: 3827 bytes
+[File Transfer] Progress: 100% (3827/3827 bytes)
+[File Transfer] Receive complete: image.png (3827 bytes)
+[File Transfer] Save path: C:\Users\lenovo\Desktop\image.png
+[File Transfer] File size verification passed
+[File Transfer] File saved successfully, size: 3827 bytes
 ```
+## 🎯 Problems Resolved
 
-## 🎯 解决的问题
+### ✅ Correct Save Location
 
-### ✅ 文件保存位置正确
-- 现在会严格按照用户选择的路径保存文件
-- 自动创建必要的目录结构
+* Files are saved strictly to the user-selected path
+* Required directories are created automatically
 
-### ✅ 文件数据完整
-- 使用二进制协议避免编码问题
-- 精确控制读取字节数
-- 多重验证确保文件完整性
+### ✅ Complete File Data
 
-### ✅ 错误处理完善
-- 连接异常检测
-- 文件大小不匹配警告
-- 详细的错误信息输出
+* Binary protocol avoids encoding issues
+* Exact byte-count reads
+* Multi-layer validation ensures integrity
 
-## 🔄 测试步骤
+### ✅ Robust Error Handling
 
-### 重新测试文件传输
-1. **重新编译**：确保使用最新代码
-2. **启动节点**：启动两个节点实例
-3. **连接节点**：确保节点正常连接
-4. **发送文件**：选择图片文件发送
-5. **选择位置**：选择桌面作为保存位置
-6. **验证结果**：检查文件是否正确保存到桌面
+* Connection anomaly detection
+* Mismatch warnings for file size
+* Detailed, actionable error messages
+  
+## 🔄 Test Steps
 
-### 预期结果
-- 文件应该保存到您选择的确切位置
-- 文件大小应该与原文件完全一致
-- 图片应该能够正常打开和查看
+### Re-test File Transfer
 
-## ⚡ 性能优化
+1. **Rebuild:** Make sure you’re using the latest code.
+2. **Start Nodes:** Launch two node instances.
+3. **Connect Nodes:** Verify the nodes are connected.
+4. **Send File:** Choose an image file to send.
+5. **Pick Location:** Select Desktop as the save path.
+6. **Verify Result:** Check that the file is saved to the Desktop.
 
-### 传输效率
-- 8KB缓冲区优化传输速度
-- 减少系统调用次数
-- 更频繁的进度更新（每40KB）
+### Expected Results
 
-### 内存使用
-- 流式处理，不占用大量内存
-- 及时释放资源
-- 自动连接清理
+* The file is saved to the exact location you selected.
+* The file size matches the original exactly.
+* The image opens and displays normally.
 
-## 🛡️ 安全性增强
+## ⚡ Performance Optimizations
 
-### 路径安全
-- 验证保存路径的有效性
-- 防止路径遍历攻击
-- 自动创建安全的目录结构
+### Transfer Efficiency
 
-### 数据完整性
-- 文件大小验证
-- 传输完成验证
-- 错误状态检测
+* 8KB buffer to improve throughput
+* Fewer system calls
+* More frequent progress updates (every 40KB)
+
+### Memory Usage
+
+* Streamed processing (no large in-memory buffers)
+* Timely resource release
+* Automatic connection cleanup
+
+
+## 🛡️ Security Enhancements
+
+### Path Safety
+
+* Validate the save path
+* Prevent path traversal attacks
+* Auto-create a safe directory structure
+
+### Data Integrity
+
+* File size verification
+* Post-transfer completion checks
+* Error state detection
 
 ---
 
-**🎉 现在文件传输应该完全正常工作了！**
+**🎉 File transfer should now work flawlessly!**
 
-这个新的二进制协议解决了所有已知的文件传输问题：
-- ✅ 正确的保存位置
-- ✅ 完整的文件数据
-- ✅ 可靠的错误处理
-- ✅ 详细的调试信息
+The new binary protocol resolves all known file transfer issues:
 
-请重新测试，文件传输功能现在应该完美工作！
+* ✅ Correct save location
+* ✅ Complete file data
+* ✅ Reliable error handling
+* ✅ Detailed debug logs
+
+Please re-test—file transfer should now work perfectly!
