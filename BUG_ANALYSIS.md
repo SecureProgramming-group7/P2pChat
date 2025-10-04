@@ -1,58 +1,71 @@
-# P2P聊天应用问题分析和修复方案
+# P2P Chat Application — Issue Analysis and Fix Plan
 
-## 🐛 发现的问题
+## 🐛 Issues Identified
 
-### 1. 在线成员显示问题
-- **现象**：在线成员列表一直显示1个成员
-- **原因**：节点加入时没有正确广播成员信息，或者成员去重逻辑有问题
+### 1. Online Members Display
 
-### 2. 消息重复问题  
-- **现象**：8081发送一条消息，8080收到两条
-- **原因**：消息转发逻辑存在重复发送，可能是：
-  - 消息既被本地处理又被转发
-  - 转发逻辑中没有正确去重
+* **Symptom:** The online members list always shows only one member.
+* **Cause:** Member info isn’t properly broadcast when a node joins, or the de-duplication logic is faulty.
 
-### 3. 自己私聊自己问题
-- **现象**：用户可以对自己进行私聊
-- **原因**：用户列表包含了自己的节点ID，没有过滤掉
+### 2. Duplicate Messages
 
-### 4. 用户名显示问题
-- **现象**：用户名显示为长数字字符串
-- **原因**：使用完整的节点ID作为用户名，应该使用简化的显示名称
+* **Symptom:** When 8081 sends a message, 8080 receives it twice.
+* **Cause:** The forwarding logic sends duplicates, possibly because:
 
-## 🔧 修复方案
+  * The message is both processed locally and forwarded.
+  * De-duplication is missing in the forwarding path.
 
-### 1. 修复节点ID显示
-- 创建用户友好的显示名称（如：Node_8080, Node_8081）
-- 保留完整节点ID用于内部识别
+### 3. Self Private Message
 
-### 2. 修复消息重复
-- 添加消息去重机制
-- 修复转发逻辑，避免重复处理
+* **Symptom:** A user can start a private chat with themselves.
+* **Cause:** The user list includes the local node’s ID and doesn’t filter it out.
 
-### 3. 修复成员列表
-- 过滤掉自己的节点
-- 修复成员加入/离开的广播逻辑
+### 4. Username Display
 
-### 4. 改进用户体验
-- 使用端口号作为用户名
-- 添加消息ID防止重复
-- 改进在线状态管理
+* **Symptom:** Usernames appear as long numeric strings.
+* **Cause:** The full node ID is used as the display name instead of a shortened, friendly label.
 
-## 📋 具体修复步骤
+## 🔧 Remediation Plan
 
-1. **修改Node.java**：
-   - 添加getDisplayName()方法
-   - 修复成员广播逻辑
+### 1. Fix Node ID Display
 
-2. **修改MessageRouter.java**：
-   - 添加消息去重
-   - 修复转发逻辑
+* Provide user-friendly display names (e.g., `Node_8080`, `Node_8081`).
+* Keep the full node ID internally for identification.
 
-3. **修改EnhancedChatController.java**：
-   - 过滤自己的节点
-   - 使用显示名称而不是完整ID
+### 2. Eliminate Duplicate Messages
 
-4. **修改OnlineMember.java**：
-   - 添加显示名称属性
-   - 改进equals和hashCode方法
+* Add a message de-duplication mechanism.
+* Correct the forwarding flow to avoid double-processing.
+
+### 3. Correct the Members List
+
+* Filter out the local node from the list.
+* Repair join/leave broadcasting logic.
+
+### 4. Improve UX
+
+* Use the port number as the displayed username.
+* Attach message IDs to prevent duplicates.
+* Improve online presence/state management.
+
+## 📋 Concrete Fix Steps
+
+1. **Modify `Node.java`:**
+
+   * Add a `getDisplayName()` method.
+   * Fix member broadcast logic.
+
+2. **Modify `MessageRouter.java`:**
+
+   * Implement message de-duplication.
+   * Correct the forwarding logic.
+
+3. **Modify `EnhancedChatController.java`:**
+
+   * Filter out the local node.
+   * Use the display name instead of the full ID.
+
+4. **Modify `OnlineMember.java`:**
+
+   * Add a `displayName` field.
+   * Improve `equals` and `hashCode` implementations.
