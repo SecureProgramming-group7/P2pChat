@@ -1,64 +1,69 @@
-# 文件传输问题快速修复指南
+# Quick Fix Guide: File Transfer Issues
 
-## 🐛 问题症状
+## 🐛 Symptoms
 
-您遇到的问题：
+You’re seeing:
+
 ```
-[文件传输] 开始发送文件到 broadcast (localhost/127.0.0.1:9081)
-发送文件 没有反应
+[File Transfer] Starting to send file to broadcast (localhost/127.0.0.1:9081)
+No response after sending the file
 ```
 
-## 🔧 问题原因
+## 🔧 Cause
 
-地址格式复杂化：`localhost/127.0.0.1:9081` 这种格式导致地址解析失败。
+A complicated address format like `localhost/127.0.0.1:9081` leads to address-parsing failure.
 
-## ✅ 解决方案
+## ✅ Solutions
 
-### 方法1：使用最新修复版本
+### Method 1: Use the latest fixed version
 
-1. **下载最新代码**：
+1. **Get the latest code:**
+
    ```bash
    git pull origin main
    mvn clean compile
    ```
 
-2. **重新启动节点**：
+2. **Restart the nodes:**
+
    ```bash
    java --module-path . --add-modules javafx.controls,javafx.fxml -jar target\p2p-chat-1.0-SNAPSHOT.jar 8080
    java --module-path . --add-modules javafx.controls,javafx.fxml -jar target\p2p-chat-1.0-SNAPSHOT.jar 8081
    ```
 
-### 方法2：手动修复（如果无法更新）
+### Method 2: Manual hotfix (if you can’t update)
 
-如果您无法更新代码，可以手动修改 `FileTransferService.java` 第188-194行：
+If you can’t pull the latest code, edit `FileTransferService.java` lines 188–194:
 
 ```java
-// 解析地址和端口
+// Parse address and port
 String normalizedAddress = targetAddress.replace("localhost", "127.0.0.1");
 
-// 处理可能的复杂地址格式，如 "localhost/127.0.0.1:9081"
+// Handle complex formats such as "localhost/127.0.0.1:9081"
 if (normalizedAddress.contains("/")) {
-    // 取斜杠后面的部分
+    // Take the part after the last slash
     normalizedAddress = normalizedAddress.substring(normalizedAddress.lastIndexOf("/") + 1);
 }
 ```
 
-## 🚀 验证修复
+## 🚀 Verification
 
-修复后，您应该看到类似这样的日志：
+After applying the fix, you should see logs like:
+
 ```
-[文件传输] 广播模式，发送给: localhost/127.0.0.1:9081
-[文件传输] 开始发送文件到 broadcast (127.0.0.1:9081)
-[文件传输] 原始地址: localhost/127.0.0.1:9081, 标准化地址: 127.0.0.1:9081
-[文件传输] 解析结果 - 主机: 127.0.0.1, 基础端口: 9081, 文件传输端口: 10081
-[文件传输] 文件发送完成: filename.txt (XXX bytes)
+[File Transfer] Broadcast mode, sending to: localhost/127.0.0.1:9081
+[File Transfer] Starting to send file to broadcast (127.0.0.1:9081)
+[File Transfer] Original address: localhost/127.0.0.1:9081, normalized address: 127.0.0.1:9081
+[File Transfer] Parse result — host: 127.0.0.1, base port: 9081, file-transfer port: 10081
+[File Transfer] File sent: filename.txt (XXX bytes)
 ```
 
-## 📋 测试步骤
+## 📋 Test Steps
 
-1. 启动两个节点
-2. 确保节点连接成功
-3. 尝试发送文件
-4. 观察控制台输出，确认文件传输完成
+1. Start two nodes
+2. Confirm the nodes are connected
+3. Attempt a file transfer
+4. Watch the console output and verify the transfer completes
 
-修复已提交到GitHub，您可以直接拉取最新版本使用。
+The fix has been committed to GitHub; you can pull the latest version directly.
+
