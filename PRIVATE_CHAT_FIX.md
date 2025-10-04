@@ -1,39 +1,43 @@
-# 私聊消息问题修复报告
+# Private Message — Fix Report
 
-## 🐛 问题描述
+## 🐛 Problem Description
 
-用户报告：使用8081向8080发送私聊消息时，8080收不到，但是群聊可以收到。
+Users reported that when 8081 sends a private message to 8080, 8080 does not receive it, while group chat works.
 
-## 🔍 问题分析
+## 🔍 Analysis
 
-### 原始流程
-1. **8081发送私聊消息**：调用 `sendPrivateMessage(targetNodeId, message)`
-2. **创建PRIVATE_CHAT消息**：目标ID设置为8080的节点ID
-3. **路由检查**：`routeAppMessage` 检查消息是否发给自己
-4. **转发逻辑**：由于目标不是8081自己，调用 `forwardMessage`
-5. **Kademlia路由**：查找最近的节点进行转发
+### Original Flow
 
-### 问题根源
-1. **路由表不完整**：新连接的节点可能还没有在路由表中建立完整信息
-2. **复杂路由逻辑**：对于简单的两节点直连场景，Kademlia路由过于复杂
-3. **节点ID匹配问题**：转发时可能无法正确匹配目标节点
+1. **8081 sends a private message:** calls `sendPrivateMessage(targetNodeId, message)`
+2. **Create `PRIVATE_CHAT` message:** target ID is set to the node ID of 8080
+3. **Routing check:** `routeAppMessage` checks whether the message is addressed to self
+4. **Forwarding logic:** since the target isn’t 8081, `forwardMessage` is invoked
+5. **Kademlia routing:** selects the nearest node(s) for forwarding
 
-## ✅ 修复方案
+### Root Causes
 
-### 1. 简化私聊消息转发逻辑
-- **直接连接优先**：首先检查是否有直接连接到目标节点
-- **节点ID匹配**：使用 `connection.getRemoteNodeId()` 进行精确匹配
-- **洪泛备选**：如果没有直接连接，使用洪泛方式确保消息到达
+1. **Incomplete routing table:** newly connected peers may not yet be fully populated in the routing table
+2. **Overly complex routing:** Kademlia is excessive for a simple two-node direct-connect scenario
+3. **Node ID matching issues:** the target node may not be matched correctly during forwarding
 
-### 2. 修复的转发逻辑
+## ✅ Fix Plan
+
+### 1) Simplify private-message forwarding
+
+* **Direct connection first:** check for a direct connection to the target peer
+* **Strict ID match:** use `connection.getRemoteNodeId()` for exact matching
+* **Flooding fallback:** if no direct connection exists, fall back to flooding to ensure delivery
+
+### 2) Updated forwarding logic
+
 ```java
-// 对于私聊消息，先尝试直接发送给目标节点
+// For private messages, attempt to send directly to the target first
 String targetNodeId = message.getTargetId();
 boolean sentDirectly = false;
 
-// 检查是否有直接连接到目标节点
+// Check for a direct connection to the target node
 for (PeerConnection connection : node.getConnections().values()) {
-    if (connection != source && connection.isConnected() && 
+    if (connection != source && connection.isConnected() &&
         targetNodeId.equals(connection.getRemoteNodeId())) {
         connection.sendMessage(serialized);
         sentDirectly = true;
@@ -41,45 +45,51 @@ for (PeerConnection connection : node.getConnections().values()) {
     }
 }
 
-// 如果没有直接连接，则转发给所有邻居（洪泛方式）
+// If no direct connection, forward to all neighbors (flooding)
 if (!sentDirectly) {
-    // 洪泛转发确保消息到达
+    // Flood-forward to ensure delivery
 }
 ```
 
-## 🎯 修复效果
+## 🎯 Results
 
-### 修复前
-- 私聊消息依赖复杂的Kademlia路由
-- 在简单网络中可能找不到正确的转发路径
-- 消息可能丢失或无法到达目标
+### Before
 
-### 修复后
-- 优先使用直接连接发送私聊消息
-- 精确的节点ID匹配确保消息发送到正确目标
-- 洪泛备选机制确保消息在复杂网络中也能到达
-- 适用于从简单的两节点到复杂多节点网络
+* Private messages relied on complex Kademlia routing
+* In simple networks the correct path might not be found
+* Messages could be lost or fail to reach the target
 
-## 🚀 测试建议
+### After
 
-1. **两节点测试**：
-   - 启动8080和8081节点
-   - 8081向8080发送私聊消息
-   - 验证8080能收到消息
+* Private messages prefer direct connections
+* Exact node ID matching ensures delivery to the intended target
+* Flooding fallback guarantees delivery in more complex topologies
+* Works from simple two-node setups to larger multi-node networks
 
-2. **多节点测试**：
-   - 启动3个或更多节点
-   - 测试非直连节点间的私聊
-   - 验证洪泛机制的有效性
+## 🚀 Test Recommendations
 
-3. **断开重连测试**：
-   - 测试节点断开重连后私聊功能是否正常
-   - 验证节点ID匹配的准确性
+1. **Two-node test:**
 
-## 📝 相关文件
+   * Start nodes on 8080 and 8081
+   * Send a private message from 8081 to 8080
+   * Verify that 8080 receives it
 
-- `MessageRouter.java` - 修复了 `forwardMessage` 方法
-- `PeerConnection.java` - 添加了 `remoteNodeId` 字段支持精确匹配
-- `Node.java` - `sendPrivateMessage` 方法保持不变
+2. **Multi-node test:**
 
-修复后的私聊功能应该在各种网络拓扑下都能正常工作。
+   * Start three or more nodes
+   * Test private messages between non-directly connected nodes
+   * Confirm the flooding fallback works
+
+3. **Disconnect/reconnect test:**
+
+   * Verify private messaging after nodes disconnect and reconnect
+   * Check the accuracy of node ID matching
+
+## 📝 Related Files
+
+* `MessageRouter.java` — updated `forwardMessage`
+* `PeerConnection.java` — added `remoteNodeId` to support exact matching
+* `Node.java` — `sendPrivateMessage` remains unchanged
+
+After these changes, private messaging should work correctly across different network topologies.
+
