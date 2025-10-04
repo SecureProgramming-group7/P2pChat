@@ -1,83 +1,94 @@
-# 文件传输问题诊断指南
+# File Transfer Diagnostic Guide
 
-## 🔍 当前问题分析
+## 🔍 Current Analysis
 
-根据您提供的日志，发现以下问题：
+Based on the logs you shared, we identified the following issues:
 
-### 1. 群聊文件传输失败
-**症状**：
+### 1. Group-chat file transfer fails
+
+**Symptom:**
+
 ```
-[文件传输] 开始发送文件到 broadcast (localhost/127.0.0.1:9081)
-群聊界面显示发送文件失败
-```
-
-**可能原因**：
-- 地址格式仍然包含复杂格式 `localhost/127.0.0.1:9081`
-- 程序在地址解析阶段失败，没有显示后续调试信息
-
-### 2. 私聊文件传输问题
-**症状**：
-```
-接受文件传输: c60e2645-260f-4281-94b1-c90262b7a7c0.png 来自 a60b654c...
-私聊发送文件 接受后没有看到下载文件
+[File Transfer] Starting to send file to broadcast (localhost/127.0.0.1:9081)
+The group chat UI shows “file send failed”
 ```
 
-**分析**：接受了文件传输请求，但实际文件传输没有完成。
+**Possible causes:**
 
-## 🚀 解决方案
+* The address still uses the complex form `localhost/127.0.0.1:9081`.
+* The program fails during address parsing and never prints the subsequent debug messages.
 
-### 步骤1：更新到最新版本
+### 2. Private-chat file transfer issue
+
+**Symptom:**
+
+```
+Accepted file transfer: c60e2645-260f-4281-94b1-c90262b7a7c0.png from a60b654c...
+After accepting a private-chat file, no downloaded file is found
+```
+
+**Analysis:** The file-transfer request was accepted, but the actual data transfer did not complete.
+
+## 🚀 Resolution
+
+### Step 1: Update to the latest version
+
 ```bash
 git pull origin main
 mvn clean compile
 ```
 
-### 步骤2：重新启动节点并观察详细日志
+### Step 2: Restart the nodes and watch the detailed logs
 
-更新后，您应该看到更详细的调试信息：
+After updating, you should see more verbose diagnostics like:
 
 ```
-[文件传输] 开始处理文件发送请求
-[文件传输] 目标节点ID: broadcast
-[文件传输] 文件: filename.png (12345 bytes)
-[文件传输] 保存路径: filename.png
-[文件传输] 广播模式，当前连接数: 1
-[文件传输] 广播模式，选择连接: localhost/127.0.0.1:9081
-[文件传输] 连接的远程节点ID: 132f9b62...
-[文件传输] 原始地址: localhost/127.0.0.1:9081, 标准化地址: 127.0.0.1:9081
-[文件传输] 解析结果 - 主机: 127.0.0.1, 基础端口: 9081, 文件传输端口: 10081
-[文件传输] 准备连接到: 127.0.0.1:10081
-[文件传输] 发送头信息: SEND:transfer_xxx:filename.png:12345:filename.png
-[文件传输] 文件发送完成: filename.png (12345 bytes)
+[File Transfer] Start processing file send request
+[File Transfer] Target node ID: broadcast
+[File Transfer] File: filename.png (12345 bytes)
+[File Transfer] Save path: filename.png
+[File Transfer] Broadcast mode, current connection count: 1
+[File Transfer] Broadcast mode, chosen connection: localhost/127.0.0.1:9081
+[File Transfer] Connected remote node ID: 132f9b62...
+[File Transfer] Original address: localhost/127.0.0.1:9081, normalized address: 127.0.0.1:9081
+[File Transfer] Parse result — host: 127.0.0.1, base port: 9081, file-transfer port: 10081
+[File Transfer] Preparing to connect to: 127.0.0.1:10081
+[File Transfer] Sending header: SEND:transfer_xxx:filename.png:12345:filename.png
+[File Transfer] File sent: filename.png (12345 bytes)
 ```
 
-### 步骤3：检查文件保存位置
+### Step 3: Check the save location
 
-文件默认保存在程序运行目录下。检查以下位置：
-- Windows: `C:\Users\lenovo\Downloads\P2pChat-main\P2pChat-main\`
-- 或者程序显示的具体保存路径
+By default, files are saved to the program’s working directory. Check:
 
-### 步骤4：如果仍有问题
+* Windows: `C:\Users\lenovo\Downloads\P2pChat-main\P2pChat-main\`
+* Or the exact path printed by the program
 
-如果更新后仍有问题，请提供完整的调试日志，包括：
-1. 文件发送方的完整日志
-2. 文件接收方的完整日志
-3. 任何错误信息
+### Step 4: If problems persist
 
-## 🔧 临时解决方案
+If the issue remains after updating, please provide full debug logs, including:
 
-如果无法立即更新，可以尝试：
-1. 重启两个节点
-2. 确保节点完全连接后再尝试文件传输
-3. 使用较小的文件进行测试（如文本文件）
+1. Complete logs from the sender
+2. Complete logs from the receiver
+3. Any error messages
 
-## 📋 预期结果
+## 🔧 Temporary Workarounds
 
-修复后，文件传输应该：
-1. 显示完整的调试信息
-2. 成功建立连接
-3. 显示传输进度
-4. 在接收方保存文件
-5. 显示传输完成消息
+If you can’t update immediately, try:
 
-请更新代码后重新测试，并提供新的日志信息以便进一步诊断。
+1. Restart both nodes
+2. Ensure the nodes are fully connected before attempting the transfer
+3. Test with a smaller file (e.g., a text file)
+
+## 📋 Expected Outcome
+
+After the fix, file transfer should:
+
+1. Print full debug information
+2. Establish the connection successfully
+3. Show transfer progress
+4. Save the file on the receiver side
+5. Display a “transfer completed” message
+
+Please update, test again, and share the new logs for further diagnosis if needed.
+
