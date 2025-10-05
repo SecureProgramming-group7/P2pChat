@@ -1,116 +1,128 @@
-# JAR文件说明
+# JAR Files Explained
 
-## 📦 为什么有两个JAR文件？
+## 📦 Why are there two JARs?
 
-在 `target/` 目录下有两个JAR文件，这是由Maven的不同插件生成的：
+You’ll see two JARs under `target/`. They’re produced by different Maven plugins:
 
-### 1. `decentralized-chat-1.0-SNAPSHOT.jar` (113KB)
-- **生成插件**: Maven JAR Plugin (默认)
-- **内容**: 仅包含项目自己的代码
-- **大小**: 113KB
-- **依赖**: 不包含外部依赖（JavaFX、Gson等）
-- **运行方式**: 需要手动指定classpath
-- **用途**: 用于开发和调试，或作为库文件
+### 1) `decentralized-chat-1.0-SNAPSHOT.jar` (113 KB)
 
-**运行命令**:
+* **Produced by:** Maven JAR Plugin (default)
+* **Contents:** Only your project’s code
+* **Size:** 113 KB
+* **Dependencies:** **Not** included (JavaFX, Gson, etc.)
+* **How to run:** Requires manual classpath setup
+* **Use case:** Development, debugging, or as a library
+
+**Run command:**
+
 ```bash
-# 无法直接运行，因为缺少依赖
-java -jar target/decentralized-chat-1.0-SNAPSHOT.jar  # ❌ 会报错
+# Cannot be run directly (missing dependencies)
+java -jar target/decentralized-chat-1.0-SNAPSHOT.jar  # ❌ will fail
 
-# 需要指定classpath
-java -cp target/classes:依赖路径 com.group7.chat.gui.ChatApplication
+# Provide classpath explicitly
+java -cp target/classes:<deps> com.group7.chat.gui.ChatApplication
 ```
 
-### 2. `p2p-chat-1.0-SNAPSHOT.jar` (8.4MB)
-- **生成插件**: Maven Shade Plugin
-- **内容**: 包含项目代码 + 所有依赖库
-- **大小**: 8.4MB
-- **依赖**: 包含JavaFX、Gson等所有依赖
-- **运行方式**: 可以直接运行
-- **用途**: 最终发布版本，用户友好
+### 2) `p2p-chat-1.0-SNAPSHOT.jar` (8.4 MB)
 
-**运行命令**:
+* **Produced by:** Maven Shade Plugin
+* **Contents:** Project code **+ all dependencies**
+* **Size:** 8.4 MB
+* **Dependencies:** Bundles JavaFX, Gson, etc.
+* **How to run:** Runnable as-is
+* **Use case:** Final, user-friendly distribution
+
+**Run command:**
+
 ```bash
-# 可以直接运行 ✅
+# Runs directly ✅
 java -jar target/p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-## 🔍 详细对比
+## 🔍 Side-by-side
 
-| 特性 | 小JAR (113KB) | 大JAR (8.4MB) |
-|------|---------------|---------------|
-| **包含内容** | 仅项目代码 | 项目代码 + 所有依赖 |
-| **JavaFX** | ❌ 不包含 | ✅ 包含 |
-| **Gson** | ❌ 不包含 | ✅ 包含 |
-| **直接运行** | ❌ 不可以 | ✅ 可以 |
-| **文件大小** | 小 | 大 |
-| **用途** | 开发/库文件 | 最终发布 |
+| Feature           | Small JAR (113 KB) | Fat JAR (8.4 MB)        |
+| ----------------- | ------------------ | ----------------------- |
+| **What’s inside** | Project code only  | Project code + all deps |
+| **JavaFX**        | ❌ Not included     | ✅ Included              |
+| **Gson**          | ❌ Not included     | ✅ Included              |
+| **Run directly**  | ❌ No               | ✅ Yes                   |
+| **File size**     | Small              | Large                   |
+| **Use case**      | Dev / library      | Release                 |
 
-## 🎯 推荐使用
+## 🎯 Recommended
 
-**对于最终用户**: 使用 `p2p-chat-1.0-SNAPSHOT.jar`
+**For end users:** use `p2p-chat-1.0-SNAPSHOT.jar`
+
 ```bash
 java -jar target/p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-**对于开发者**: 两个都有用
-- 小JAR用于开发和调试
-- 大JAR用于测试最终发布版本
+**For developers:** use both
 
-## 🛠️ 技术原理
+* Small JAR for dev/debug
+* Fat JAR for testing the release build
 
-### Maven JAR Plugin (默认)
+## 🛠️ How it works
+
+### Maven JAR Plugin (default)
+
 ```xml
-<!-- 自动包含在所有Maven项目中 -->
+<!-- Included by default in Maven builds -->
 <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-jar-plugin</artifactId>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-jar-plugin</artifactId>
 </plugin>
 ```
-- 只打包 `src/main/java` 和 `src/main/resources` 中的内容
-- 不包含依赖库
-- 生成 `${artifactId}-${version}.jar`
 
-### Maven Shade Plugin (我们添加的)
+* Packs `src/main/java` and `src/main/resources`
+* **Does not** include dependencies
+* Outputs `${artifactId}-${version}.jar`
+
+### Maven Shade Plugin (added by us)
+
 ```xml
 <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-shade-plugin</artifactId>
-    <configuration>
-        <finalName>p2p-chat-1.0-SNAPSHOT</finalName>
-        <!-- 包含所有依赖 -->
-    </configuration>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-shade-plugin</artifactId>
+  <configuration>
+    <finalName>p2p-chat-1.0-SNAPSHOT</finalName>
+    <!-- Bundle all dependencies -->
+  </configuration>
 </plugin>
 ```
-- 将所有依赖库"合并"到一个JAR中
-- 创建"fat JAR"或"uber JAR"
-- 可以独立运行，无需额外依赖
 
-## 🗂️ 文件结构对比
+* Merges all dependencies into one JAR
+* Creates a **fat/uber JAR**
+* Runs standalone—no extra deps needed
 
-**小JAR内容**:
+## 🗂️ What’s inside
+
+**Small JAR:**
+
 ```
 META-INF/
 css/
 fxml/
-com/group7/chat/  (仅项目代码)
+com/group7/chat/   (project code only)
 ```
 
-**大JAR内容**:
+**Fat JAR:**
+
 ```
 META-INF/
 css/
 fxml/
-com/group7/chat/     (项目代码)
-com/sun/javafx/      (JavaFX库)
-com/google/gson/     (Gson库)
-javafx/              (JavaFX模块)
-... (其他依赖库)
+com/group7/chat/    (project code)
+com/sun/javafx/     (JavaFX)
+com/google/gson/    (Gson)
+javafx/             (JavaFX modules)
+... (other deps)
 ```
 
-## 💡 最佳实践
+## 💡 Best Practices
 
-1. **发布给用户**: 只提供大JAR文件
-2. **版本控制**: 通常不提交JAR文件到Git
-3. **CI/CD**: 构建时生成，发布到仓库
-4. **文档**: 在README中说明使用大JAR文件
+1. **For releases:** ship only the fat JAR.
+2. **Version control:** generally don’t commit JARs to Git.
+3. **CI/CD:** generate JARs during build and publish artifacts.
+4. **Docs:** note in the README that users should run the fat JAR.
