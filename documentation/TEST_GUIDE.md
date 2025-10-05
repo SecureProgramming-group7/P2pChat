@@ -1,224 +1,270 @@
-# P2P 聊天应用测试指南
+# P2P Chat App — Testing Guide
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
-- Java 11 或更高版本
-- Maven 3.6 或更高版本
-- 支持 JavaFX 的系统环境
+### Environment Requirements
 
-### 编译项目
+* Java 11 or later
+* Maven 3.6 or later
+* A system with JavaFX support
+
+### Build the Project
+
 ```bash
 cd P2pChat
 mvn clean compile
 ```
 
-## 🎯 运行应用
+## 🎯 Run the App
 
-### 方法一：使用 JavaFX Maven 插件（推荐）
+### Method 1: JavaFX Maven Plugin (Recommended)
+
 ```bash
-# 启动第一个节点（默认端口 8080）
+# Start first node (default port 8080)
 mvn javafx:run
 
-# 启动第二个节点（端口 8081，连接到第一个节点）
+# Start second node (port 8081, connect to first)
 mvn javafx:run -Djavafx.args="8081 localhost:8080"
 
-# 启动第三个节点（端口 8082，连接到第二个节点）
+# Start third node (port 8082, connect to second)
 mvn javafx:run -Djavafx.args="8082 localhost:8081"
 ```
 
-### 方法二：使用命令行模式
+### Method 2: Command-Line Mode
+
 ```bash
-# 启动命令行版本（用于调试网络功能）
+# Start CLI build (for debugging network features)
 mvn exec:java -Dexec.mainClass="com.yourgroup.chat.Main" -Dexec.args="8080"
 mvn exec:java -Dexec.mainClass="com.yourgroup.chat.Main" -Dexec.args="8081 localhost:8080"
 ```
 
-## 🧪 功能测试
+## 🧪 Feature Tests
 
-### 1. 基础网络连接测试
+### 1) Basic Network Connectivity
 
-**步骤：**
-1. 启动第一个节点：`mvn javafx:run`
-2. 启动第二个节点：`mvn javafx:run -Djavafx.args="8081 localhost:8080"`
-3. 观察两个窗口的连接状态
+**Steps**
 
-**预期结果：**
-- 两个窗口都显示 "连接数: 1"
-- 在线成员列表显示对方节点
-- 系统消息显示连接成功
+1. Start the first node: `mvn javafx:run`
+2. Start the second node: `mvn javafx:run -Djavafx.args="8081 localhost:8080"`
+3. Observe connection status in both windows
 
-### 2. 群聊功能测试
+**Expected**
 
-**步骤：**
-1. 确保至少有两个节点连接
-2. 在任一节点的输入框中输入消息
-3. 点击"发送"按钮或按 Enter 键
+* Both windows show “Connections: 1”
+* The online members list shows the peer node
+* System messages indicate connection success
 
-**预期结果：**
-- 发送的消息在本地显示为蓝色气泡（右对齐）
-- 其他节点收到消息显示为白色气泡（左对齐）
-- 消息包含发送者ID和时间戳
+---
 
-### 3. 私聊功能测试
+### 2) Group Chat
 
-**步骤：**
-1. 在成员列表中双击任一在线成员
-2. 私聊窗口应该弹出
-3. 在私聊窗口中发送消息
+**Steps**
 
-**预期结果：**
-- 弹出独立的私聊窗口
-- 私聊消息只在对应的私聊窗口中显示
-- 主窗口显示 "[私聊]" 标记的消息
-- 可以同时打开多个私聊窗口
+1. Ensure at least two nodes are connected
+2. Type a message in any node’s input box
+3. Click **Send** or press **Enter**
 
-### 4. 表情功能测试
+**Expected**
 
-**步骤：**
-1. 点击输入框旁边的 😊 按钮
-2. 表情选择器弹出
-3. 点击任意表情
-4. 发送包含表情的消息
+* Sent message appears locally as a right-aligned blue bubble
+* Other nodes see it as a left-aligned white bubble
+* Messages include sender ID and timestamp
 
-**预期结果：**
-- 表情选择器正确显示4个分类
-- 点击表情后插入到光标位置
-- 表情在消息中正确显示
+---
 
-### 5. 文件传输功能测试
+### 3) Private Chat
 
-**步骤：**
-1. 点击 📁 文件按钮
-2. 选择一个文件
-3. 观察接收方的反应
+**Steps**
 
-**预期结果：**
-- 发送方显示"正在发送文件"消息
-- 接收方弹出确认对话框
-- 接受后显示文件传输消息
+1. Double-click any online member in the member list
+2. A private chat window pops up
+3. Send a message in that window
 
-### 6. 多节点网络测试
+**Expected**
 
-**步骤：**
-1. 启动3个或更多节点
-2. 形成网络拓扑：A-B-C
-3. 在节点A发送消息
+* A separate private chat window opens
+* Private messages appear only in that private window
+* Main window shows messages marked “[Private]”
+* Multiple private windows can be open simultaneously
 
-**预期结果：**
-- 消息通过洪泛算法传播到所有节点
-- 每个节点都能收到消息
-- 消息不会重复显示
+---
 
-## 🔧 故障排除
+### 4) Emoji Feature
 
-### 常见问题
+**Steps**
 
-**1. JavaFX 运行时错误**
+1. Click the 😊 button next to the input box
+2. Emoji picker pops up
+3. Click any emoji
+4. Send a message containing the emoji
+
+**Expected**
+
+* Emoji picker shows 4 categories correctly
+* Clicking inserts at the cursor position
+* Emoji renders properly in messages
+
+> *Note: If your build removed emoji support, skip this test.*
+
+---
+
+### 5) File Transfer
+
+**Steps**
+
+1. Click the 📁 file button
+2. Choose a file
+3. Observe the receiver’s behavior
+
+**Expected**
+
+* Sender shows “Sending file…” status
+* Receiver sees a confirmation dialog
+* On accept, both sides display transfer messages
+
+---
+
+### 6) Multi-Node Network
+
+**Steps**
+
+1. Launch 3+ nodes
+2. Form topology A–B–C
+3. Send a message from node A
+
+**Expected**
+
+* Message floods to all nodes
+* Every node receives it
+* No duplicate displays
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**1) JavaFX runtime error**
+
 ```
 Error: JavaFX runtime components are missing
 ```
-**解决方案：**
-- 确保使用 Java 11+ 并安装了 JavaFX
-- 使用 `mvn javafx:run` 而不是直接运行 jar
 
-**2. 端口占用错误**
+**Fix**
+
+* Ensure Java 11+ and JavaFX are available
+* Prefer `mvn javafx:run` over running the JAR directly
+
+**2) Port already in use**
+
 ```
 java.net.BindException: Address already in use
 ```
-**解决方案：**
-- 使用不同的端口号
-- 检查并关闭占用端口的进程
 
-**3. 连接失败**
+**Fix**
+
+* Use a different port
+* Find and stop the process using the port
+
+**3) Connection failed**
+
 ```
-无法连接到节点
+Unable to connect to node
 ```
-**解决方案：**
-- 确保目标节点已启动
-- 检查防火墙设置
-- 验证IP地址和端口号
 
-### 调试模式
+**Fix**
 
-启用详细日志输出：
+* Ensure the target node is running
+* Check firewall rules
+* Verify IP/hostname and port
+
+### Debug Mode
+
+Enable verbose logging:
+
 ```bash
 mvn javafx:run -Djavafx.options="-Djava.util.logging.level=ALL"
 ```
 
-## 📊 性能测试
+## 📊 Performance Tests
 
-### 网络延迟测试
-1. 启动多个节点
-2. 发送大量消息
-3. 观察消息传播延迟
+### Network Latency
 
-### 内存使用测试
-1. 长时间运行应用
-2. 发送大量消息和文件
-3. 监控内存使用情况
+1. Start multiple nodes
+2. Send a large volume of messages
+3. Observe propagation latency
 
-### 并发连接测试
-1. 启动10+个节点
-2. 同时进行多个私聊
-3. 测试系统稳定性
+### Memory Usage
 
-## 🎨 界面测试
+1. Run the app for an extended period
+2. Send many messages and files
+3. Monitor memory consumption
 
-### 响应式设计测试
-- 调整窗口大小
-- 测试不同分辨率
-- 验证布局适应性
+### Concurrent Connections
 
-### 表情显示测试
-- 测试各种Unicode表情
-- 验证表情在不同系统上的显示
-- 测试表情选择器的性能
+1. Start 10+ nodes
+2. Run multiple private chats simultaneously
+3. Check overall stability
 
-## 📝 测试报告模板
+## 🎨 UI Tests
+
+### Responsive Layout
+
+* Resize the window
+* Try various screen resolutions
+* Verify adaptive layout
+
+### Emoji Rendering
+
+* Test diverse Unicode emoji
+* Check rendering across OSes
+* Measure picker performance
+
+## 📝 Test Report Template
 
 ```
-测试日期：
-测试环境：
-Java版本：
-操作系统：
+Test Date:
+Environment:
+Java Version:
+Operating System:
 
-功能测试结果：
-- [ ] 基础网络连接
-- [ ] 群聊功能
-- [ ] 私聊功能
-- [ ] 表情功能
-- [ ] 文件传输
-- [ ] 多节点网络
+Feature Results:
+- [ ] Basic Connectivity
+- [ ] Group Chat
+- [ ] Private Chat
+- [ ] Emoji Feature
+- [ ] File Transfer
+- [ ] Multi-Node Network
 
-发现的问题：
-1. 
-2. 
-3. 
+Issues Found:
+1)
+2)
+3)
 
-建议改进：
-1. 
-2. 
-3. 
+Recommendations:
+1)
+2)
+3)
 ```
 
-## 🚀 高级测试场景
+## 🚀 Advanced Scenarios
 
-### 网络分区测试
-1. 启动5个节点形成网络
-2. 断开中间节点的连接
-3. 观察网络自愈能力
+### Network Partition
 
-### 大文件传输测试
-1. 尝试传输大文件（>100MB）
-2. 测试传输过程中的稳定性
-3. 验证文件完整性
+1. Run 5 nodes to form a network
+2. Disconnect a central node
+3. Observe self-healing behavior
 
-### 长时间运行测试
-1. 让应用运行24小时以上
-2. 定期发送消息和文件
-3. 监控内存泄漏和性能下降
+### Large File Transfer
+
+1. Try transferring files >100 MB
+2. Check stability during transfer
+3. Verify file integrity
+
+### Long-Running Stability
+
+1. Run for 24+ hours
+2. Send periodic messages/files
+3. Watch for memory leaks and performance degradation
 
 ---
 
-**注意：** 这是一个教育项目，请在安全的网络环境中进行测试。
+**Note:** This is an educational project. Please test in a safe network environment.
