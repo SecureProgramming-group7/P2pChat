@@ -1,135 +1,141 @@
-# P2P聊天应用运行指南
+# P2P Chat App — Run Guide
 
-## 📋 系统要求
+## 📋 System Requirements
 
-- Java 11 或更高版本
-- 支持JavaFX的运行环境（GUI模式）
+* Java 11 or later
+* A JavaFX-capable runtime (for GUI mode)
 
-## 🚀 运行方式
+## 🚀 Ways to Run
 
-### 方式1：GUI界面模式（推荐）
+### Option 1: GUI Mode (Recommended)
 
 **Windows:**
+
 ```bash
-# 双击运行
+# Double-click
 start-gui.bat
 
-# 或命令行运行
+# Or run from terminal
 java -jar ./target/p2p-chat-1.0-SNAPSHOT.jar
 ```
 
 **Linux/Mac:**
+
 ```bash
-# 使用启动脚本
+# Use the startup script
 ./start-gui.sh
 
-# 或直接运行
+# Or run directly
 java -jar ./target/p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-### 方式2：命令行模式
+### Option 2: Command-Line Mode
 
 **Windows:**
+
 ```bash
-# 双击运行
+# Double-click
 start-cli.bat
 
-# 或命令行运行
+# Or run from terminal
 java -cp ./target/classes com.group7.chat.Main
 ```
 
 **Linux/Mac:**
-```bash
-# 使用启动脚本
-./start-cli.sh
 
-# 或直接运行
+```bash
+# Use the startup script
+start-cli.sh
+
+# Or run directly
 java -cp ./target/classes com.group7.chat.Main
 ```
 
-### 方式3：使用Maven运行
+### Option 3: Run with Maven
 
 ```bash
-# 编译项目
+# Compile the project
 mvn clean compile
 
-# 运行命令行版本
+# Run CLI
 mvn exec:java -Dexec.mainClass="com.group7.chat.Main"
 
-# 运行GUI版本（需要JavaFX支持）
+# Run GUI (requires JavaFX)
 mvn javafx:run
 ```
 
-### 方式4：直接运行类文件
+### Option 4: Run Class Files Directly
 
 ```bash
-# 编译项目
+# Compile
 mvn clean compile
 
-# 运行命令行版本
+# Run CLI
 java -cp target/classes com.group7.chat.Main
 
-# 运行GUI版本（需要JavaFX模块路径）
-java --module-path /path/to/javafx/lib --add-modules javafx.controls,javafx.fxml -cp target/classes com.group7.chat.gui.ChatApplication
+# Run GUI (requires JavaFX module path)
+java --module-path /path/to/javafx/lib --add-modules javafx.controls,javafx.fxml \
+     -cp target/classes com.group7.chat.gui.ChatApplication
 ```
 
-## 📁 文件说明
+## 📁 Files
 
-- `target/p2p-chat-1.0-SNAPSHOT.jar` - 包含所有依赖的可执行JAR文件（8.8MB）- **启动GUI界面**
-- `target/decentralized-chat-1.0-SNAPSHOT.jar` - 仅包含项目代码的JAR文件（115KB）
-- `start-gui.bat` / `start-gui.sh` - GUI模式启动脚本
-- `start-cli.bat` / `start-cli.sh` - 命令行模式启动脚本
+* `target/p2p-chat-1.0-SNAPSHOT.jar` — executable **fat JAR** with all deps (8.8 MB) — **launches GUI**
+* `target/decentralized-chat-1.0-SNAPSHOT.jar` — project classes only (115 KB)
+* `start-gui.bat` / `start-gui.sh` — GUI launch scripts
+* `start-cli.bat` / `start-cli.sh` — CLI launch scripts
 
-## 🎮 使用说明
+## 🎮 Usage
 
-### 命令行模式
+### CLI Mode
 
-启动后，您可以使用以下命令：
+After startup, you can use:
 
-- `connect <host:port>` - 连接到指定节点
-- `send <message>` - 发送消息到所有连接的节点
-- `status` - 显示当前状态
-- `quit` - 退出程序
+* `connect <host:port>` — connect to a node
+* `send <message>` — broadcast a message to all connected nodes
+* `status` — show current status
+* `quit` — exit
 
-### GUI模式
+### GUI Mode
 
-启动GUI版本后，您可以：
+In the GUI you can:
 
-1. 查看在线成员列表
-2. 发送群聊消息
-3. 发起私聊
-4. 传输文件
-5. 查看连接状态
+1. View online members
+2. Send group messages
+3. Start direct messages
+4. Transfer files
+5. View connection status
 
-## 🔧 故障排除
+## 🔧 Troubleshooting
 
-### 如果遇到 "Unable to access jarfile" 错误：
+### “Unable to access jarfile”
 
-1. 确认您在正确的目录中（包含target文件夹）
-2. 确认JAR文件存在：`ls -la target/*.jar`
-3. 使用正确的文件名：`p2p-chat-1.0-SNAPSHOT.jar`
+1. Ensure you’re in the correct directory (the one containing `target/`).
+2. Verify the JAR exists: `ls -la target/*.jar`
+3. Use the correct name: `p2p-chat-1.0-SNAPSHOT.jar`
 
-### 如果遇到JavaFX相关错误：
+### JavaFX-related errors
 
-1. 确保您的Java版本支持JavaFX
-2. 或者使用命令行版本：`java -cp target/classes com.group7.chat.Main`
+1. Ensure your Java setup supports JavaFX.
+2. Or use the CLI build: `java -cp target/classes com.group7.chat.Main`
 
-### 如果遇到端口占用错误：
+### Port already in use
 
-1. 更改默认端口：`java -jar target/p2p-chat-1.0-SNAPSHOT.jar 8081`
-2. 或者终止占用端口的进程
+1. Change the default port:
+   `java -jar target/p2p-chat-1.0-SNAPSHOT.jar 8081`
+2. Or stop the process using that port.
 
-## 🌐 网络配置
+## 🌐 Network Configuration
 
-- 默认监听端口：8080
-- 文件传输端口：9080
-- 安全文件传输端口：10080
+* Default listen port: **8080**
+* File transfer port: **9080**
+* Secure file transfer port: **10080**
 
-确保防火墙允许这些端口的通信。
+Make sure your firewall allows these ports.
 
-## 📝 注意事项
+## 📝 Notes
 
-1. 首次运行会自动生成RSA密钥对
-2. 项目支持端到端加密通信
-3. 具有分布式覆盖网络功能
-4. 包含故意植入的安全漏洞供学习研究
+1. An RSA key pair is generated on first run.
+2. End-to-end encryption is supported.
+3. The app uses a distributed overlay network.
+4. Intentionally planted security vulnerabilities are included for learning/research.
