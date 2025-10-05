@@ -1,75 +1,87 @@
-### 安全通信协议 (SCP) v1.0
+### Secure Communication Protocol (SCP) v1.0
 
-**1. 协议目标**
+**1. Protocol Objectives**
 
-本协议 (Secure Communication Protocol, SCP) 旨在为P2P聊天应用提供端到端加密（E2EE），确保只有通信双方能够读取消息内容。它旨在保护消息的**机密性**、**完整性**和**真实性**，并提供前向保密和抗重放攻击的能力。
+This Secure Communication Protocol (SCP) provides end-to-end encryption (E2EE) for the P2P chat application, ensuring that only the communicating parties can read message content. It protects **confidentiality**, **integrity**, and **authenticity**, and offers forward secrecy and replay resistance.
 
-**2. 核心组件**
+**2. Core Components**
 
-*   **长期身份密钥 (Long-Term Identity Keys):** 每个节点拥有一对RSA-2048密钥（公钥和私钥）。公钥用于身份标识和签名，私钥必须被安全地存储且绝不离开节点。
-*   **会话密钥 (Session Keys):** 对于每一次私聊或群聊会话，通信双方/多方都会协商一个临时的对称密钥。本协议使用**AES-256-GCM**作为会话加密算法。GCM模式同时提供了加密和认证（完整性）功能。
-*   **密钥交换协议 (Key Exchange Protocol):** 使用**椭圆曲线迪菲-赫尔曼密钥交换 (ECDH)** 协议来安全地协商会话密钥。具体使用 `Curve25519`。
+* **Long-Term Identity Keys:** Each node holds an RSA-2048 key pair (public/private). The public key is used for identification and signatures; the private key must be securely stored and never leave the node.
+* **Session Keys:** For each private or group chat session, participants negotiate an ephemeral symmetric key. The protocol uses **AES-256-GCM** for session encryption. GCM provides both confidentiality and integrity (authentication).
+* **Key Exchange Protocol:** **Elliptic Curve Diffie–Hellman (ECDH)** is used to securely agree on session keys, specifically `Curve25519`.
 
-**3. 协议流程**
+**3. Protocol Flow**
 
-**3.1. 私聊会话建立 (1-on-1 Chat)**
+**3.1. 1-on-1 Chat Session Establishment**
 
-当节点A希望与节点B建立一个安全的私聊会话时，流程如下：
+When node A initiates a secure session with node B:
 
-1.  **发起请求:**
-    *   节点A生成一个临时的ECDH密钥对（公钥 `E_pubA`，私钥 `E_privA`）。
-    *   节点A使用其**长期身份私钥**对 `E_pubA` 进行签名，生成签名 `SigA`。
-    *   节点A向节点B发送一条 `KEY_EXCHANGE` 消息，内容包含：
-        *   节点A的长期身份公钥 (`RSA_pubA`)。
-        *   临时的ECDH公钥 (`E_pubA`)。
-        *   对 `E_pubA` 的签名 (`SigA`)。
+1. **Initiation**
 
-2.  **响应与密钥生成:**
-    *   节点B收到消息后，首先使用 `RSA_pubA` 验证签名 `SigA`，以确认请求确实来自节点A。
-    *   验证通过后，节点B也生成一个临时的ECDH密钥对（`E_pubB`, `E_privB`）。
-    *   节点B使用其**长期身份私钥**对 `E_pubB` 进行签名，生成签名 `SigB`。
-    *   节点B使用自己的 `E_privB` 和收到的 `E_pubA` 计算出共享密钥 `S`。
-    *   节点B使用一个密钥派生函数 (KDF)，如 HKDF，从共享密钥 `S` 中派生出最终的AES-256会话密钥 `K_session`。
-    *   节点B向节点A回复一条 `KEY_EXCHANGE` 消息，内容包含：
-        *   节点B的长期身份公钥 (`RSA_pubB`)。
-        *   临时的ECDH公钥 (`E_pubB`)。
-        *   对 `E_pubB` 的签名 (`SigB`)。
+   * A generates an ephemeral ECDH key pair (`E_pubA`, `E_privA`).
+   * A signs `E_pubA` with its **long-term identity private key**, producing `SigA`.
+   * A sends a `KEY_EXCHANGE` message to B containing:
 
-3.  **会话开始:**
-    *   节点A收到回复后，同样使用 `RSA_pubB` 验证签名 `SigB`。
-    *   验证通过后，节点A使用自己的 `E_privA` 和收到的 `E_pubB` 计算出相同的共享密钥 `S`。
-    *   节点A使用相同的KDF派生出相同的会话密钥 `K_session`。
-    *   至此，双方都拥有了安全的会话密钥 `K_session`，可以开始使用AES-256-GCM加密通信。
+     * A’s long-term identity public key (`RSA_pubA`)
+     * A’s ephemeral ECDH public key (`E_pubA`)
+     * The signature over `E_pubA` (`SigA`)
 
-**3.2. 消息加密与解密**
+2. **Response & Key Generation**
 
-*   **加密:**
-    *   发送方使用 `K_session` 和一个唯一的、绝不重复的**随机数 (Nonce)**（也称为初始化向量IV）通过AES-256-GCM加密明文消息。
-    *   发送的消息体 (`SECURE_PRIVATE_CHAT`) 包含：
-        *   加密后的密文。
-        *   所使用的Nonce。
-        *   GCM生成的认证标签 (Authentication Tag)。
+   * Upon receipt, B verifies `SigA` using `RSA_pubA` to confirm the request is from A.
+   * If valid, B generates its own ephemeral ECDH key pair (`E_pubB`, `E_privB`).
+   * B signs `E_pubB` with its **long-term identity private key**, producing `SigB`.
+   * Using `E_privB` and received `E_pubA`, B computes the shared secret `S`.
+   * B derives the final AES-256 session key `K_session` from `S` via a KDF such as HKDF.
+   * B replies with a `KEY_EXCHANGE` message containing:
 
-*   **解密:**
-    *   接收方收到消息后，使用 `K_session`、收到的Nonce和认证标签进行解密。
-    *   如果认证标签无效，意味着消息在传输过程中被篡改，接收方必须丢弃该消息。
+     * B’s long-term identity public key (`RSA_pubB`)
+     * B’s ephemeral ECDH public key (`E_pubB`)
+     * The signature over `E_pubB` (`SigB`)
 
-**4. 安全特性**
+3. **Session Start**
 
-*   **机密性:** 只有拥有会话密钥的参与者才能解密消息。
-*   **完整性:** GCM的认证标签确保任何对密文的篡改都会被检测到。
-*   **真实性:** 密钥交换过程中的数字签名确保了通信双方的身份。
-*   **前向保密 (Forward Secrecy):** 由于会话密钥是由临时的ECDH密钥对生成的，即使节点的长期私钥泄露，过去的会话内容也不会被解密。
-*   **抗重放攻击 (Anti-Replay):**
-    *   接收方需要维护一个近期收到的消息ID或哈希的窗口。
-    *   如果收到一个已在该窗口中存在的消息，则直接丢弃。
-    *   GCM中使用的唯一Nonce也为防止重放提供了帮助。
+   * A verifies `SigB` using `RSA_pubB`.
+   * If valid, A computes the same shared secret `S` using `E_privA` and `E_pubB`.
+   * A derives the same `K_session` using the same KDF.
+   * Both sides now share `K_session` and can communicate using AES-256-GCM.
 
-**5. 待植入的漏洞构思 (Vulnerability Design - For Internal Use Only)**
+**3.2. Message Encryption & Decryption**
 
-为了满足作业要求，我们可以在此协议的实现中植入以下一个或多个漏洞：
+* **Encryption**
 
-1.  **签名验证不严格:** 在密钥交换的第2步，节点B在计算共享密钥 *之前* 就回复了自己的ECDH公钥。攻击者可以冒充A向B发起请求，虽然无法解密B的回复，但可以消耗B的计算资源。一个更隐蔽的漏洞是，在验证签名后，代码中某个分支逻辑（例如，处理某种错误情况时）会跳过后续的验证步骤，直接使用未经完全验证的密钥。
-2.  **Nonce重用:** 在实现AES-GCM加密时，故意使用一个可预测的或重复的Nonce生成器（例如，一个简单的计数器，但在节点重启后会重置）。Nonce的重用在GCM模式下是灾难性的，可能导致密钥泄露。
-3.  **密钥派生函数(KDF)实现薄弱:** 不使用标准的HKDF，而是实现一个简单的自定义KDF，例如直接使用共享密钥 `S` 的SHA-256哈希作为会话密钥。这削弱了密钥的安全性，使其更容易受到分析。
-4.  **日志泄露:** 在调试日志中，不小心打印了部分敏感信息，例如临时ECDH私钥或派生出的会话密钥。虽然在生产环境中日志级别可能会调高，但在调试模式下这是一个严重漏洞。
+  * The sender encrypts plaintext with `K_session` and a unique, never-reused **nonce** (IV) using AES-256-GCM.
+  * The transmitted `SECURE_PRIVATE_CHAT` payload includes:
+
+    * The ciphertext
+    * The nonce used
+    * The GCM authentication tag
+
+* **Decryption**
+
+  * The receiver decrypts using `K_session`, the received nonce, and the tag.
+  * If tag verification fails, the message is considered tampered with and must be discarded.
+
+**4. Security Properties**
+
+* **Confidentiality:** Only holders of the session key can decrypt.
+* **Integrity:** GCM’s auth tag detects any modification to the ciphertext.
+* **Authenticity:** Signatures during key exchange authenticate the parties.
+* **Forward Secrecy:** Because session keys derive from ephemeral ECDH keys, past sessions remain secure even if long-term keys are later compromised.
+* **Replay Resistance:**
+
+  * The receiver maintains a sliding window of recently seen message IDs or hashes.
+  * Any message found in this window is discarded.
+  * The uniqueness of the GCM nonce further helps prevent replay.
+
+**5. Planned Vulnerabilities (for coursework) — *For Internal Use Only***
+
+To satisfy the assignment’s requirements, one or more of the following weaknesses may be deliberately introduced in the implementation:
+
+1. **Lax signature verification:** In step 2, B replies with its ECDH public key *before* fully validating A’s signature; an attacker could spoof A to consume B’s resources. A subtler variant: after partial verification, a corner-case branch (e.g., an error handler) skips remaining checks and proceeds with an insufficiently verified key.
+
+2. **Nonce reuse:** In AES-GCM, intentionally use a predictable or reused nonce generator (e.g., a simple counter that resets after node restart). Nonce reuse in GCM is catastrophic and can expose keys.
+
+3. **Weak KDF:** Replace standard HKDF with a simplistic custom KDF, such as deriving the session key by directly hashing the shared secret `S` with SHA-256. This weakens key material and eases cryptanalysis.
+
+4. **Logging leakage:** In debug logs, inadvertently print sensitive artifacts (e.g., ephemeral ECDH private keys or derived session keys). While production may raise the log level, this is still a critical flaw in debug mode.
