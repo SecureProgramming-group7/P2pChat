@@ -1,23 +1,23 @@
-# 分布式覆盖网络协议设计 (DONP - Distributed Overlay Network Protocol)
+# DONP - Distributed Overlay Network Protocol
 
-## 🌐 协议概述
+## 🌐 Protocol Overview
 
-DONP (Distributed Overlay Network Protocol) 是一个专为多方聊天系统设计的分布式覆盖网络协议。该协议实现了完全去中心化的网络架构，支持动态节点发现、自适应路由、故障恢复和多方群组通信。
+**DONP (Distributed Overlay Network Protocol)** is a distributed overlay network protocol designed for multi-party chat systems. It delivers a fully decentralized architecture with dynamic node discovery, adaptive routing, fault recovery, and multi-party group communication.
 
-### 设计原则
+### Design Principles
 
-1. **完全去中心化**：无任何中央服务器或协调节点
-2. **自组织网络**：节点自动发现和组织网络拓扑
-3. **故障容忍**：对节点故障和网络分区具有鲁棒性
-4. **可扩展性**：支持大规模节点网络
-5. **安全性**：内置端到端加密和身份验证
+1. **Fully decentralized:** No central servers or coordinator nodes.
+2. **Self-organizing network:** Nodes automatically discover peers and form the topology.
+3. **Fault tolerance:** Robust against node failures and network partitions.
+4. **Scalability:** Supports large-scale node networks.
+5. **Security:** Built-in end-to-end encryption and authentication.
 
-## 🏗️ 网络架构设计
+## 🏗️ Network Architecture
 
-### 覆盖网络拓扑
+### Overlay Network Topology
 
 ```
-                分布式覆盖网络拓扑
+            Distributed Overlay Network Topology
     ┌─────────────────────────────────────────────────┐
     │                                                 │
     │    A ←─→ B ←─→ C                                │
@@ -31,40 +31,41 @@ DONP (Distributed Overlay Network Protocol) 是一个专为多方聊天系统设
     └─────────────────────────────────────────────────┘
 ```
 
-**特点**：
-- **网格拓扑**：每个节点维护多个邻居连接
-- **冗余路径**：多条路径确保消息可达性
-- **动态调整**：根据网络状况自动调整连接
-- **负载均衡**：智能分配消息路由负载
+**Characteristics:**
 
-### 节点类型定义
+* **Mesh topology:** Each node maintains multiple neighbor links
+* **Redundant paths:** Multiple routes ensure message reachability
+* **Dynamic adaptation:** Connections auto-adjust to network conditions
+* **Load balancing:** Intelligent distribution of routing load
+
+### Node Type Definitions
 
 ```java
 public enum NodeType {
-    BOOTSTRAP,    // 引导节点：帮助新节点加入网络
-    REGULAR,      // 常规节点：普通参与节点
-    SUPER,        // 超级节点：具有更强处理能力的节点
-    RELAY         // 中继节点：专门用于消息转发
+    BOOTSTRAP,    // Bootstrap node: helps new nodes join the network
+    REGULAR,      // Regular node: standard participant
+    SUPER,        // Super node: higher-capacity processing node
+    RELAY         // Relay node: dedicated to message forwarding
 }
 ```
 
-### 节点状态模型
+**Node State Model**
 
 ```java
 public enum NodeState {
-    INITIALIZING,  // 初始化中
-    DISCOVERING,   // 发现邻居
-    CONNECTING,    // 建立连接
-    ACTIVE,        // 活跃状态
-    DEGRADED,      // 降级状态（部分功能）
-    RECOVERING,    // 恢复中
-    LEAVING        // 离开网络
+    INITIALIZING,  // Initializing
+    DISCOVERING,   // Discovering neighbors
+    CONNECTING,    // Establishing connections
+    ACTIVE,        // Active
+    DEGRADED,      // Degraded (partial functionality)
+    RECOVERING,    // Recovering
+    LEAVING        // Leaving the network
 }
 ```
 
-## 📡 通信协议规范
+## 📡 Communication Protocol Specification
 
-### 消息格式定义
+### Message Format Definition
 
 ```json
 {
@@ -92,12 +93,12 @@ public enum NodeState {
 }
 ```
 
-### 消息类型规范
+### Message Type Specification
 
-#### 1. 网络发现消息 (DISCOVERY)
+#### 1. Discovery Message 
 
 ```java
-// 节点公告消息
+// Node Announcement Message
 public class NodeAnnouncement {
     private String nodeId;
     private NodeType nodeType;
@@ -108,15 +109,15 @@ public class NodeAnnouncement {
     private long timestamp;
 }
 
-// 邻居请求消息
+// Neighbor Request Message
 public class NeighborRequest {
     private String requesterId;
     private int maxNeighbors;
     private List<String> preferredTypes;
-    private GeographicLocation location; // 可选
+    private GeographicLocation location; // Optional
 }
 
-// 邻居响应消息
+// Neighbor Response Message
 public class NeighborResponse {
     private String responderId;
     private List<NodeInfo> availableNeighbors;
@@ -125,10 +126,10 @@ public class NeighborResponse {
 }
 ```
 
-#### 2. 路由控制消息 (ROUTING)
+#### 2. Routing Control Messages 
 
 ```java
-// 路由表更新
+// Routing Table Update
 public class RoutingUpdate {
     private String sourceNodeId;
     private List<RouteEntry> routes;
@@ -136,7 +137,7 @@ public class RoutingUpdate {
     private long timestamp;
 }
 
-// 路径发现消息
+// Path Discovery Message
 public class PathDiscovery {
     private String sourceNodeId;
     private String targetNodeId;
@@ -145,7 +146,7 @@ public class PathDiscovery {
     private Map<String, Object> metrics;
 }
 
-// 路径响应消息
+// Path Response Message
 public class PathResponse {
     private String sourceNodeId;
     private String targetNodeId;
@@ -154,10 +155,10 @@ public class PathResponse {
 }
 ```
 
-#### 3. 群组管理消息 (GROUP)
+#### 3. Group Management Messages
 
 ```java
-// 群组创建消息
+// Group Creation Message
 public class GroupCreation {
     private String groupId;
     private String creatorId;
@@ -165,18 +166,18 @@ public class GroupCreation {
     private GroupType groupType;
     private List<String> initialMembers;
     private GroupPolicy policy;
-    private byte[] groupKey; // 加密传输
+    private byte[] groupKey; // Encrypted Transport
 }
 
-// 群组加入请求
+// Group Join Request
 public class GroupJoinRequest {
     private String groupId;
     private String requesterId;
-    private String invitationCode; // 可选
+    private String invitationCode; // Optional
     private PublicKey requesterPublicKey;
 }
 
-// 群组成员更新
+// Group Membership Update
 public class GroupMemberUpdate {
     private String groupId;
     private String operatorId;
@@ -186,10 +187,10 @@ public class GroupMemberUpdate {
 }
 ```
 
-#### 4. 聊天消息 (CHAT)
+#### 4. Chat Messages 
 
 ```java
-// 私聊消息
+// Private Message 
 public class PrivateMessage {
     private String messageId;
     private String senderId;
@@ -200,7 +201,7 @@ public class PrivateMessage {
     private byte[] signature;
 }
 
-// 群组消息
+// Group Message
 public class GroupMessage {
     private String messageId;
     private String groupId;
@@ -213,24 +214,25 @@ public class GroupMessage {
 }
 ```
 
-## 🔀 路由算法设计
+## 🔀 Routing Algorithm Design
 
-### 分布式路由表
+### Distributed Routing Table
 
 ```java
 public class DistributedRoutingTable {
-    // 直接邻居表
+    // Direct neighbors
     private Map<String, NeighborInfo> directNeighbors;
-    
-    // 多跳路由表
+
+    // Multi-hop routing table
     private Map<String, RouteEntry> routingTable;
-    
-    // 群组路由表
+
+    // Group routing table
     private Map<String, GroupRouteInfo> groupRoutes;
-    
-    // 路由缓存
+
+    // Route cache
     private LRUCache<String, List<String>> pathCache;
 }
+
 
 public class RouteEntry {
     private String destinationNodeId;
@@ -243,94 +245,94 @@ public class RouteEntry {
 }
 ```
 
-### 自适应路由算法
+### Adaptive Routing Algorithm
 
 ```java
 public class AdaptiveRoutingAlgorithm {
-    
-    // 基于距离向量的路由发现
+
+    // Distance-vector–based route discovery
     public void updateRoutingTable(RoutingUpdate update) {
         for (RouteEntry entry : update.getRoutes()) {
             String dest = entry.getDestinationNodeId();
             RouteEntry current = routingTable.get(dest);
-            
+
             if (current == null || isBetterRoute(entry, current)) {
-                // 更新路由表
+                // Update routing table
                 routingTable.put(dest, entry);
-                // 广播更新给邻居
+                // Broadcast the update to neighbors
                 broadcastRoutingUpdate(entry);
             }
         }
     }
-    
-    // 路由质量评估
+
+    // Route quality evaluation
     private boolean isBetterRoute(RouteEntry newRoute, RouteEntry currentRoute) {
-        // 综合考虑跳数、延迟、可靠性
+        // Consider hop count, latency, and reliability
         double newScore = calculateRouteScore(newRoute);
         double currentScore = calculateRouteScore(currentRoute);
         return newScore > currentScore;
     }
-    
-    // 多路径路由选择
+
+    // Multi-path route selection
     public List<String> findMultiplePaths(String targetNodeId, int maxPaths) {
-        // 使用修改的Dijkstra算法找到多条路径
-        // 考虑路径分离度和负载均衡
+        // Use a modified Dijkstra to find multiple paths
+        // Consider path disjointness and load balancing
         return pathFinder.findKShortestPaths(targetNodeId, maxPaths);
     }
 }
 ```
 
-### 消息转发策略
+### Message Forwarding Strategy
 
 ```java
 public class MessageForwardingStrategy {
-    
-    // 智能转发决策
+
+    // Intelligent forwarding decision
     public ForwardingDecision makeForwardingDecision(Message message) {
         String targetId = message.getTargetNodeId();
-        
+
         if (isDirectNeighbor(targetId)) {
             return new ForwardingDecision(DIRECT, targetId);
         }
-        
+
         if (isGroupMessage(message)) {
             return makeGroupForwardingDecision(message);
         }
-        
+
         return makeUnicastForwardingDecision(message);
     }
-    
-    // 群组消息转发
+
+    // Group message forwarding
     private ForwardingDecision makeGroupForwardingDecision(GroupMessage message) {
         String groupId = message.getGroupId();
         List<String> groupMembers = getGroupMembers(groupId);
-        
-        // 计算最优转发树
+
+        // Compute the optimal forwarding tree
         SpanningTree forwardingTree = calculateForwardingTree(groupMembers);
         return new ForwardingDecision(MULTICAST, forwardingTree.getNextHops());
     }
-    
-    // 单播消息转发
+
+    // Unicast message forwarding
     private ForwardingDecision makeUnicastForwardingDecision(Message message) {
         String targetId = message.getTargetNodeId();
         List<String> paths = routingTable.getPaths(targetId);
-        
+
         if (paths.isEmpty()) {
-            // 触发路径发现
+            // Trigger path discovery
             initiatePathDiscovery(targetId);
             return new ForwardingDecision(BUFFER, null);
         }
-        
-        // 选择最佳路径
+
+        // Select the best next hop
         String nextHop = selectBestNextHop(paths);
         return new ForwardingDecision(FORWARD, nextHop);
     }
 }
 ```
 
-## 🔍 节点发现机制
+## 🔍 Node Discovery Mechanisms
 
-### 引导节点发现
+### Bootstrap Node Discovery
 
 ```java
 public class BootstrapDiscovery {
@@ -359,7 +361,7 @@ public class BootstrapDiscovery {
 }
 ```
 
-### 本地网络发现
+### Local Network Discovery
 
 ```java
 public class LocalNetworkDiscovery {
@@ -367,18 +369,18 @@ public class LocalNetworkDiscovery {
     private static final String MULTICAST_GROUP = "224.0.0.1";
     
     public void startLocalDiscovery() {
-        // UDP多播发现
+        // UDP multicast discovery
         MulticastSocket socket = new MulticastSocket(DISCOVERY_PORT);
         InetAddress group = InetAddress.getByName(MULTICAST_GROUP);
         socket.joinGroup(group);
         
-        // 定期发送发现消息
+        // Periodically send discovery beacons
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
             sendDiscoveryBeacon(socket, group);
         }, 0, 30, TimeUnit.SECONDS);
         
-        // 监听发现响应
+        // Listen for discovery responses
         listenForDiscoveryResponses(socket);
     }
     
@@ -391,39 +393,40 @@ public class LocalNetworkDiscovery {
 }
 ```
 
-### DHT节点发现
+### DHT Node Discovery
 
 ```java
 public class DHTNodeDiscovery {
     private KademliaRoutingTable routingTable;
     private static final int K_BUCKET_SIZE = 20;
-    
+
     public List<NodeInfo> findClosestNodes(String targetNodeId, int count) {
-        // 使用Kademlia算法查找最近节点
+        // Find closest nodes using the Kademlia algorithm
         List<NodeInfo> candidates = new ArrayList<>();
-        
-        // 从本地路由表开始
+
+        // Start with the local routing table
         candidates.addAll(routingTable.getClosestNodes(targetNodeId, count));
-        
-        // 如果不够，向网络查询
+
+        // If insufficient, query the network
         if (candidates.size() < count) {
             candidates.addAll(queryNetworkForNodes(targetNodeId, count - candidates.size()));
         }
-        
+
         return candidates.stream()
+                // Sort by XOR distance to the target
                 .sorted((a, b) -> compareDistance(a.getNodeId(), b.getNodeId(), targetNodeId))
                 .limit(count)
                 .collect(Collectors.toList());
     }
-    
+
     private void updateRoutingTable(NodeInfo nodeInfo) {
         String nodeId = nodeInfo.getNodeId();
         int bucketIndex = calculateBucketIndex(nodeId);
-        
+
         KBucket bucket = routingTable.getBucket(bucketIndex);
         bucket.addNode(nodeInfo);
-        
-        // 如果桶满了，执行桶分裂或替换策略
+
+        // If the bucket is full, perform split or replacement policy
         if (bucket.isFull()) {
             handleFullBucket(bucket, nodeInfo);
         }
@@ -431,9 +434,9 @@ public class DHTNodeDiscovery {
 }
 ```
 
-## 🏘️ 群组管理协议
+## 🏘️ Group Management Protocol
 
-### 分布式群组架构
+### Distributed Group Architecture
 
 ```java
 public class DistributedGroup {
@@ -444,52 +447,52 @@ public class DistributedGroup {
     private Map<String, GroupRole> memberRoles;
     private GroupPolicy policy;
     private SecretKey groupKey;
-    private VectorClock vectorClock; // 用于状态同步
+    private VectorClock vectorClock; // For state synchronization
     
-    // 分布式群组状态管理
+    // Distributed group state management
     private Map<String, GroupState> memberStates;
     private ConsensusAlgorithm consensus;
 }
 
 public enum GroupType {
-    PUBLIC,      // 公开群组，任何人可以加入
-    PRIVATE,     // 私有群组，需要邀请
-    SECRET,      // 秘密群组，不可被发现
-    TEMPORARY    // 临时群组，自动过期
+    PUBLIC,      // Public group; anyone can join
+    PRIVATE,     // Private group; invite required
+    SECRET,      // Secret group; not discoverable
+    TEMPORARY    // Temporary group; expires automatically
 }
 
 public enum GroupRole {
-    OWNER,       // 群组所有者
-    ADMIN,       // 管理员
-    MODERATOR,   // 版主
-    MEMBER,      // 普通成员
-    GUEST        // 访客
+    OWNER,       // Group owner
+    ADMIN,       // Administrator
+    MODERATOR,   // Moderator
+    MEMBER,      // Regular member
+    GUEST        // Guest
 }
 ```
 
-### 群组创建协议
+### Group Creation Protocol
 
 ```java
 public class GroupCreationProtocol {
     
     public Group createGroup(GroupCreationRequest request) {
-        // 1. 生成群组ID和密钥
+        // 1) Generate group ID and key
         String groupId = generateGroupId();
         SecretKey groupKey = generateGroupKey();
         
-        // 2. 创建群组对象
-        Group group = new Group(groupId, request.getGroupName(), 
-                               request.getGroupType(), request.getCreatorId());
+        // 2) Create the group object
+        Group group = new Group(groupId, request.getGroupName(),
+                                request.getGroupType(), request.getCreatorId());
         
-        // 3. 添加创建者为所有者
+        // 3) Add the creator as OWNER
         group.addMember(request.getCreatorId(), GroupRole.OWNER);
         
-        // 4. 邀请初始成员
+        // 4) Invite initial members
         for (String memberId : request.getInitialMembers()) {
             sendGroupInvitation(groupId, memberId, groupKey);
         }
         
-        // 5. 广播群组创建通知
+        // 5) Broadcast group-creation notification
         broadcastGroupCreation(group);
         
         return group;
@@ -507,17 +510,17 @@ public class GroupCreationProtocol {
 }
 ```
 
-### 群组成员同步
+### Group Membership Synchronization
 
 ```java
 public class GroupMembershipSync {
     
-    // 使用向量时钟进行状态同步
+    // Use a vector clock for state synchronization
     public void synchronizeGroupState(String groupId) {
         Group localGroup = getLocalGroup(groupId);
         VectorClock localClock = localGroup.getVectorClock();
         
-        // 向所有群组成员请求状态
+        // Request state from all group members
         for (String memberId : localGroup.getMembers()) {
             GroupStateRequest request = new GroupStateRequest();
             request.setGroupId(groupId);
@@ -533,37 +536,34 @@ public class GroupMembershipSync {
         VectorClock localClock = localGroup.getVectorClock();
         VectorClock requesterClock = request.getRequesterClock();
         
-        // 比较向量时钟，确定需要同步的状态
+        // Compare vector clocks to determine what needs syncing
         if (localClock.isAfter(requesterClock)) {
-            // 发送更新的状态
+            // Send updated state
             GroupStateUpdate update = createStateUpdate(localGroup, requesterClock);
             sendMessage(request.getRequesterId(), update);
         } else if (requesterClock.isAfter(localClock)) {
-            // 请求更新的状态
+            // Ask for newer state
             requestStateUpdate(request.getRequesterId(), groupId);
         }
     }
     
-    // 冲突解决机制
+    // Conflict resolution
     public void resolveConflict(String groupId, List<GroupStateUpdate> conflictingUpdates) {
-        // 使用最后写入获胜策略
+        // Last-write-wins strategy
         GroupStateUpdate winningUpdate = conflictingUpdates.stream()
                 .max(Comparator.comparing(GroupStateUpdate::getTimestamp))
                 .orElse(null);
         
         if (winningUpdate != null) {
             applyStateUpdate(groupId, winningUpdate);
-            
-            // 通知其他成员解决方案
+            // Notify others of the resolution
             broadcastConflictResolution(groupId, winningUpdate);
         }
     }
 }
 ```
 
-## 🔄 消息传递机制
-
-### 可靠消息传递
+### Reliable Message Delivery
 
 ```java
 public class ReliableMessageDelivery {
@@ -573,24 +573,24 @@ public class ReliableMessageDelivery {
     public void sendReliableMessage(String targetNodeId, Message message) {
         String messageId = message.getMessageId();
         
-        // 添加到待确认列表
+        // Add to the pending-ACK list
         PendingMessage pending = new PendingMessage(message, targetNodeId);
         pendingMessages.put(messageId, pending);
         
-        // 发送消息
+        // Send the message
         sendMessage(targetNodeId, message);
         
-        // 设置重传定时器
+        // Schedule retransmission
         scheduleRetransmission(messageId);
     }
     
     public void handleAcknowledgment(String messageId, String senderId) {
         PendingMessage pending = pendingMessages.remove(messageId);
         if (pending != null) {
-            // 取消重传定时器
+            // Cancel retransmission timer
             pending.cancelRetransmission();
             
-            // 通知应用层消息已送达
+            // Notify app layer: message delivered
             notifyDeliveryConfirmation(messageId, senderId);
         }
     }
@@ -599,15 +599,15 @@ public class ReliableMessageDelivery {
         retryScheduler.schedule(() -> {
             PendingMessage pending = pendingMessages.get(messageId);
             if (pending != null && pending.getRetryCount() < MAX_RETRIES) {
-                // 重传消息
+                // Retransmit
                 pending.incrementRetryCount();
                 sendMessage(pending.getTargetNodeId(), pending.getMessage());
                 
-                // 指数退避重传
+                // Exponential backoff
                 long delay = INITIAL_RETRY_DELAY * (1L << pending.getRetryCount());
                 scheduleRetransmission(messageId);
             } else {
-                // 达到最大重试次数，标记为失败
+                // Max retries reached → mark as failed
                 pendingMessages.remove(messageId);
                 notifyDeliveryFailure(messageId);
             }
@@ -616,20 +616,20 @@ public class ReliableMessageDelivery {
 }
 ```
 
-### 群组消息广播
+### Group Message Broadcast
 
 ```java
 public class GroupMessageBroadcast {
     
-    // 高效群组消息广播
+    // Efficient group message broadcast
     public void broadcastToGroup(String groupId, GroupMessage message) {
         Group group = getGroup(groupId);
         Set<String> members = group.getMembers();
         
-        // 构建最小生成树进行广播
+        // Build a minimum spanning tree for broadcast
         SpanningTree broadcastTree = buildBroadcastTree(members);
         
-        // 向直接子节点发送消息
+        // Send to direct children
         for (String childNode : broadcastTree.getChildren(getCurrentNodeId())) {
             ForwardingInstruction instruction = new ForwardingInstruction();
             instruction.setMessage(message);
@@ -638,27 +638,27 @@ public class GroupMessageBroadcast {
             sendMessage(childNode, instruction);
         }
         
-        // 向本地群组成员投递消息
+        // Deliver to local members of the group
         deliverToLocalMembers(groupId, message);
     }
     
-    // 处理转发指令
+    // Handle forwarding instruction
     public void handleForwardingInstruction(ForwardingInstruction instruction) {
         GroupMessage message = instruction.getMessage();
         Set<String> targetNodes = instruction.getTargetNodes();
         
-        // 继续向子节点转发
+        // Continue forwarding to child nodes
         for (String targetNode : targetNodes) {
             if (isDirectNeighbor(targetNode)) {
                 sendMessage(targetNode, message);
             } else {
-                // 需要进一步路由
+                // Further routing required
                 routeMessage(targetNode, message);
             }
         }
     }
     
-    // 消息去重机制
+    // Message de-duplication
     private boolean isDuplicateMessage(GroupMessage message) {
         String messageId = message.getMessageId();
         String groupId = message.getGroupId();
@@ -674,28 +674,26 @@ public class GroupMessageBroadcast {
 }
 ```
 
-## 🛡️ 安全机制集成
-
-### 端到端加密
+### End-to-End Encryption
 
 ```java
 public class EndToEndEncryption {
     
-    // 私聊消息加密
+    // Encrypt private (1:1) messages
     public EncryptedMessage encryptPrivateMessage(String recipientId, String content) {
-        // 获取接收者公钥
+        // Fetch recipient's public key
         PublicKey recipientPublicKey = getPublicKey(recipientId);
         
-        // 生成会话密钥
+        // Generate ephemeral session key
         SecretKey sessionKey = generateSessionKey();
         
-        // 加密消息内容
+        // Encrypt message content
         byte[] encryptedContent = encryptWithAES(content, sessionKey);
         
-        // 加密会话密钥
+        // Encrypt session key
         byte[] encryptedSessionKey = encryptWithRSA(sessionKey.getEncoded(), recipientPublicKey);
         
-        // 创建加密消息
+        // Assemble encrypted message
         EncryptedMessage encryptedMessage = new EncryptedMessage();
         encryptedMessage.setEncryptedContent(encryptedContent);
         encryptedMessage.setEncryptedSessionKey(encryptedSessionKey);
@@ -705,15 +703,15 @@ public class EndToEndEncryption {
         return encryptedMessage;
     }
     
-    // 群组消息加密
+    // Encrypt group messages
     public EncryptedGroupMessage encryptGroupMessage(String groupId, String content) {
-        // 获取群组密钥
+        // Fetch group key
         SecretKey groupKey = getGroupKey(groupId);
         
-        // 加密消息内容
+        // Encrypt message content
         byte[] encryptedContent = encryptWithAES(content, groupKey);
         
-        // 创建加密群组消息
+        // Assemble encrypted group message
         EncryptedGroupMessage encryptedMessage = new EncryptedGroupMessage();
         encryptedMessage.setGroupId(groupId);
         encryptedMessage.setEncryptedContent(encryptedContent);
@@ -724,35 +722,35 @@ public class EndToEndEncryption {
 }
 ```
 
-### 身份验证协议
+### Authentication Protocol
 
 ```java
 public class DistributedAuthentication {
     
-    // 节点身份验证
+    // Node identity authentication
     public boolean authenticateNode(String nodeId, AuthenticationChallenge challenge) {
-        // 获取节点公钥
+        // Fetch the node's public key
         PublicKey nodePublicKey = getPublicKey(nodeId);
         if (nodePublicKey == null) {
             return false;
         }
         
-        // 验证挑战响应
+        // Verify the challenge response
         byte[] challengeData = challenge.getChallengeData();
         byte[] signature = challenge.getSignature();
         
         return verifySignature(challengeData, signature, nodePublicKey);
     }
     
-    // 分布式信任评估
+    // Distributed trust evaluation
     public TrustLevel evaluateNodeTrust(String nodeId) {
-        // 收集来自多个节点的信任评价
+        // Gather trust ratings from multiple nodes
         List<TrustRating> ratings = collectTrustRatings(nodeId);
         
-        // 计算加权平均信任分数
+        // Compute a weighted average trust score
         double trustScore = calculateWeightedTrustScore(ratings);
         
-        // 考虑历史交互记录
+        // Factor in historical interactions
         InteractionHistory history = getInteractionHistory(nodeId);
         trustScore = adjustTrustScore(trustScore, history);
         
@@ -762,7 +760,7 @@ public class DistributedAuthentication {
     private List<TrustRating> collectTrustRatings(String nodeId) {
         List<TrustRating> ratings = new ArrayList<>();
         
-        // 向邻居节点查询信任评价
+        // Query neighbors for their trust assessments
         for (String neighborId : getNeighbors()) {
             TrustQuery query = new TrustQuery(nodeId);
             TrustRating rating = sendTrustQuery(neighborId, query);
@@ -776,9 +774,9 @@ public class DistributedAuthentication {
 }
 ```
 
-## 📊 性能优化策略
+## 📊 Performance Optimization Strategies
 
-### 消息缓存机制
+### Message Caching Mechanism
 
 ```java
 public class MessageCache {
@@ -786,28 +784,25 @@ public class MessageCache {
     private BloomFilter<String> messageFilter;
     
     public boolean isMessageCached(String messageId) {
-        // 先检查布隆过滤器
+        // Check Bloom filter first
         if (!messageFilter.mightContain(messageId)) {
             return false;
         }
-        
-        // 再检查实际缓存
+        // Then confirm in the real cache
         return messageCache.containsKey(messageId);
     }
     
     public void cacheMessage(Message message) {
         String messageId = message.getMessageId();
-        
-        // 添加到缓存
+        // Add to cache
         messageCache.put(messageId, message);
-        
-        // 添加到布隆过滤器
+        // Add to Bloom filter
         messageFilter.put(messageId);
     }
 }
 ```
 
-### 负载均衡
+### Load Balancing
 
 ```java
 public class LoadBalancer {
@@ -839,10 +834,10 @@ public class LoadBalancer {
 }
 ```
 
-## 🔧 协议实现接口
+## 🔧 Protocol Implementation Interfaces
 
 ```java
-// 主要协议接口
+// Primary protocol interface
 public interface OverlayNetworkProtocol {
     void joinNetwork(List<String> bootstrapNodes);
     void leaveNetwork();
@@ -852,7 +847,7 @@ public interface OverlayNetworkProtocol {
     void updateRoutingTable(RoutingUpdate update);
 }
 
-// 群组管理接口
+// Group management interface
 public interface GroupManagementProtocol {
     Group createGroup(GroupCreationRequest request);
     void joinGroup(String groupId, String invitationCode);
@@ -861,7 +856,7 @@ public interface GroupManagementProtocol {
     void updateGroupMembership(String groupId, GroupMemberUpdate update);
 }
 
-// 故障恢复接口
+// Fault-tolerance interface
 public interface FaultToleranceProtocol {
     void detectNodeFailure(String nodeId);
     void handleNetworkPartition(List<String> partitionedNodes);
@@ -870,4 +865,5 @@ public interface FaultToleranceProtocol {
 }
 ```
 
-这个分布式覆盖网络协议为多方聊天系统提供了完整的技术基础，支持去中心化的网络架构、可靠的消息传递、灵活的群组管理和强大的故障恢复能力。接下来我们将基于这个协议实现具体的系统组件。
+This distributed overlay network protocol provides the technical foundation for a multi-party chat system, enabling a decentralized architecture, reliable message delivery, flexible group management, and robust fault recovery. Next, we’ll implement concrete system components based on this protocol.
+
