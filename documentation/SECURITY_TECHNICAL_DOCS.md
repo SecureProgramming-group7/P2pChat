@@ -1,14 +1,14 @@
-# P2P聊天应用安全机制技术文档
+# 🔐 P2P Chat App — Security Mechanisms Technical Document
 
-## 🏗️ 安全架构设计
+## 🏗️ Security Architecture
 
-### 整体架构
+### Overall Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    P2P Chat Application                     │
 ├─────────────────────────────────────────────────────────────┤
-│                   Security Layer                           │
+│                       Security Layer                        │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
 │  │ SecurityMgr │ │ KeyManager  │ │ AuthenticationService   │ │
 │  └─────────────┘ └─────────────┘ └─────────────────────────┘ │
@@ -16,154 +16,167 @@
 │  │CryptoService│ │SecureMsgHdlr│ │ SecureFileTransferSvc   │ │
 │  └─────────────┘ └─────────────┘ └─────────────────────────┘ │
 ├─────────────────────────────────────────────────────────────┤
-│                  Application Layer                         │
+│                     Application Layer                       │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
 │  │    Node     │ │MessageRouter│ │    FileTransferSvc      │ │
 │  └─────────────┘ └─────────────┘ └─────────────────────────┘ │
 ├─────────────────────────────────────────────────────────────┤
-│                   Network Layer                            │
+│                      Network Layer                          │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
-│  │PeerConnection│ │   Socket    │ │      TCP/UDP            │ │
+│  │PeerConnection│ │   Socket    │ │        TCP/UDP          │ │
 │  └─────────────┘ └─────────────┘ └─────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 核心组件
+### Core Components
 
-#### 1. SecurityManager
-- **职责**：统一管理所有安全功能
-- **功能**：安全策略控制、组件协调、状态监控
-- **接口**：提供高级安全API
+#### 1) SecurityManager
 
-#### 2. KeyManager
-- **职责**：密钥生成、存储、管理
-- **功能**：RSA密钥对管理、AES会话密钥管理、密钥持久化
-- **算法**：RSA-2048、AES-256
+* **Role:** Orchestrates all security functions
+* **Functions:** Policy control, component coordination, status monitoring
+* **API:** High-level security interfaces
 
-#### 3. CryptoService
-- **职责**：底层加密解密操作
-- **功能**：对称加密、非对称加密、数字签名、哈希计算
-- **算法**：AES/GCM/NoPadding、RSA/ECB/OAEPSHA256、SHA-256
+#### 2) KeyManager
 
-#### 4. AuthenticationService
-- **职责**：节点身份验证和信任管理
-- **功能**：挑战-响应认证、信任级别评估、证书管理
-- **机制**：基于公钥的身份验证
+* **Role:** Key generation, storage, and lifecycle
+* **Functions:** RSA keypair management, AES session key management, persistence
+* **Algorithms:** RSA-2048, AES-256
 
-#### 5. SecureMessageHandler
-- **职责**：消息加密解密处理
-- **功能**：端到端消息加密、数字签名验证、消息完整性保护
-- **协议**：自定义安全消息格式
+#### 3) CryptoService
 
-#### 6. SecureFileTransferService
-- **职责**：安全文件传输
-- **功能**：文件加密传输、传输完整性验证、进度监控
-- **特性**：分块加密、流式传输
+* **Role:** Low-level cryptographic ops
+* **Functions:** Symmetric/asymmetric crypto, signatures, hashing
+* **Algorithms:** AES/GCM/NoPadding, RSA/ECB/OAEP-SHA256, SHA-256
 
-## 🔐 加密算法详解
+#### 4) AuthenticationService
 
-### 对称加密 (AES-256-GCM)
+* **Role:** Node identity and trust management
+* **Functions:** Challenge–response auth, trust scoring, certificate handling
+* **Mechanism:** Public-key–based identity verification
+
+#### 5) SecureMessageHandler
+
+* **Role:** Secure message processing
+* **Functions:** E2E encryption, signature verification, integrity protection
+* **Protocol:** Custom secure message format
+
+#### 6) SecureFileTransferService
+
+* **Role:** Secure file transfer
+* **Functions:** Encrypted transfer, integrity checks, progress monitoring
+* **Features:** Chunk encryption, streaming I/O
+
+## 🔐 Cryptographic Algorithms
+
+### Symmetric Crypto (AES-256-GCM)
 
 ```java
-// 加密过程
+// Encryption
 Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
 cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 byte[] iv = cipher.getIV();
 byte[] encryptedData = cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8));
 ```
 
-**特点**：
-- **算法**：AES-256
-- **模式**：GCM (Galois/Counter Mode)
-- **优势**：认证加密、防篡改、高性能
-- **IV长度**：12字节（随机生成）
-- **标签长度**：16字节（完整性验证）
+**Notes:**
 
-### 非对称加密 (RSA-2048)
+* **Cipher:** AES-256
+* **Mode:** GCM (authenticated encryption)
+* **Benefits:** Integrity, anti-tampering, high performance
+* **IV length:** 12 bytes (random)
+* **Tag length:** 16 bytes (auth tag)
+
+### Asymmetric Crypto (RSA-2048)
 
 ```java
-// 密钥生成
+// Key generation
 KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 keyGen.initialize(2048);
 KeyPair keyPair = keyGen.generateKeyPair();
 ```
 
-**特点**：
-- **密钥长度**：2048位
-- **填充方案**：OAEP with SHA-256
-- **用途**：密钥交换、数字签名
-- **安全级别**：等效于112位对称密钥
+**Notes:**
 
-### 数字签名 (RSA-SHA256)
+* **Key size:** 2048 bits
+* **Padding:** OAEP with SHA-256
+* **Use:** Key transport, digital signatures
+* **Security level:** ~112-bit symmetric equivalent
+
+### Digital Signatures (RSA-SHA256)
 
 ```java
-// 签名生成
+// Sign
 Signature signature = Signature.getInstance("SHA256withRSA");
 signature.initSign(privateKey);
 signature.update(data);
 byte[] signatureBytes = signature.sign();
 ```
 
-**特点**：
-- **哈希算法**：SHA-256
-- **签名算法**：RSA
-- **用途**：消息完整性、身份认证
-- **抗碰撞性**：2^128计算复杂度
+**Notes:**
 
-## 🔑 密钥管理机制
+* **Hash:** SHA-256
+* **Purpose:** Integrity + authenticity
+* **Collision resistance:** ~2^128 work factor
 
-### 密钥层次结构
+## 🔑 Key Management
+
+### Key Hierarchy
 
 ```
 Root Key (Node Identity)
 ├── Node Private Key (RSA-2048)
 ├── Node Public Key (RSA-2048)
 └── Session Keys (AES-256)
-    ├── Session Key for Node A
-    ├── Session Key for Node B
-    └── Session Key for Node C
+    ├── Session Key — Peer A
+    ├── Session Key — Peer B
+    └── Session Key — Peer C
 ```
 
-### 密钥生命周期
+### Key Lifecycle
 
-1. **生成阶段**
-   - 节点启动时生成RSA密钥对
-   - 连接建立时生成AES会话密钥
-   - 使用安全随机数生成器
+1. **Generation**
 
-2. **分发阶段**
-   - 公钥通过握手消息分发
-   - 会话密钥通过RSA加密传输
-   - 支持密钥更新机制
+   * RSA pair at node startup
+   * AES session keys on connection
+   * SecureRandom for all key material
 
-3. **使用阶段**
-   - 会话密钥用于消息加密
-   - 私钥用于数字签名
-   - 公钥用于签名验证
+2. **Distribution**
 
-4. **销毁阶段**
-   - 连接断开时清理会话密钥
-   - 内存中密钥及时清零
-   - 支持密钥轮换
+   * Public keys via handshake
+   * Session keys transported with RSA
+   * Supports key updates/rotation
 
-### 密钥存储
+3. **Use**
+
+   * Session keys for message encryption
+   * Private key for signatures
+   * Public key for verification
+
+4. **Destruction**
+
+   * Clear session keys on disconnect
+   * Zeroize sensitive memory
+   * Periodic rotation supported
+
+### Key Storage
 
 ```java
-// 密钥文件结构
+// On-disk layout
 keys/
-├── node_private.key    // 节点私钥 (PKCS#8格式)
-├── node_public.key     // 节点公钥 (X.509格式)
-└── session_keys.dat    // 会话密钥缓存 (加密存储)
+├── node_private.key    // PKCS#8
+├── node_public.key     // X.509
+└── session_keys.dat    // Encrypted cache
 ```
 
-**安全措施**：
-- 私钥文件权限限制（600）
-- 会话密钥内存加密存储
-- 定期密钥备份和恢复
+**Protections:**
 
-## 🛡️ 身份验证协议
+* Private key file perms (600)
+* In-memory encryption for session keys
+* Regular backups and recovery procedures
 
-### 挑战-响应认证
+## 🛡️ Authentication Protocol
+
+### Challenge–Response
 
 ```
 Node A                           Node B
@@ -181,57 +194,55 @@ Node A                           Node B
   |<------------------------------|
 ```
 
-### 认证流程详解
+#### Flow Details
 
-1. **请求阶段**
-   ```java
-   AuthenticationChallenge challenge = authService.createChallenge(targetNodeId);
-   ```
+1. **Request**
 
-2. **挑战阶段**
-   ```java
-   byte[] challengeData = secureRandom.nextBytes(32);
-   String challengeId = UUID.randomUUID().toString();
-   ```
+```java
+AuthenticationChallenge challenge = authService.createChallenge(targetNodeId);
+```
 
-3. **响应阶段**
-   ```java
-   byte[] signature = cryptoService.sign(challengeData, nodePrivateKey);
-   ```
+2. **Challenge**
 
-4. **验证阶段**
-   ```java
-   boolean valid = cryptoService.verifySignature(challengeData, signature, nodePublicKey);
-   ```
+```java
+byte[] challengeData = secureRandom.nextBytes(32);
+String challengeId = UUID.randomUUID().toString();
+```
 
-### 信任级别评估
+3. **Response**
+
+```java
+byte[] signature = cryptoService.sign(challengeData, nodePrivateKey);
+```
+
+4. **Verification**
+
+```java
+boolean valid = cryptoService.verifySignature(challengeData, signature, nodePublicKey);
+```
+
+### Trust Level Evaluation
 
 ```java
 public class TrustLevel {
-    // 基础信任分数
     private static final int BASE_TRUST = 30;
-    
-    // 成功认证加分
     private static final int AUTH_SUCCESS_BONUS = 20;
-    
-    // 通信历史加分
     private static final int COMMUNICATION_BONUS = 10;
-    
-    // 时间衰减因子
     private static final double TIME_DECAY = 0.95;
 }
 ```
 
-**信任级别分类**：
-- **0-30**：不可信
-- **31-50**：低信任
-- **51-70**：中等信任
-- **71-90**：高信任
-- **91-100**：完全信任
+**Levels:**
 
-## 📨 安全消息格式
+* **0–30:** Untrusted
+* **31–50:** Low trust
+* **51–70:** Medium trust
+* **71–90:** High trust
+* **91–100:** Fully trusted
 
-### 消息结构
+## 📨 Secure Message Format
+
+### Structure
 
 ```json
 {
@@ -248,51 +259,58 @@ public class TrustLevel {
 }
 ```
 
-### 加密流程
+### Encryption Flow
 
-1. **消息准备**
-   ```java
-   String fullContent = timestamp + ":" + messageId + ":" + content;
-   ```
+1. **Prepare**
 
-2. **内容加密**
-   ```java
-   EncryptionResult result = cryptoService.encryptWithAES(fullContent, sessionKey);
-   ```
+```java
+String fullContent = timestamp + ":" + messageId + ":" + content;
+```
 
-3. **数字签名**
-   ```java
-   byte[] signature = cryptoService.sign(fullContent.getBytes(), privateKey);
-   ```
+2. **Encrypt**
 
-4. **消息封装**
-   ```java
-   SecureMessage secureMessage = new SecureMessage(senderId, encryptedContent, signature, timestamp, messageId);
-   ```
+```java
+EncryptionResult result = cryptoService.encryptWithAES(fullContent, sessionKey);
+```
 
-### 解密流程
+3. **Sign**
 
-1. **消息验证**
-   ```java
-   boolean valid = cryptoService.verifySignature(content, signature, senderPublicKey);
-   ```
+```java
+byte[] signature = cryptoService.sign(fullContent.getBytes(), privateKey);
+```
 
-2. **内容解密**
-   ```java
-   String decryptedContent = cryptoService.decryptWithAES(encryptionResult, sessionKey);
-   ```
+4. **Wrap**
 
-3. **完整性检查**
-   ```java
-   String[] parts = decryptedContent.split(":", 3);
-   long messageTimestamp = Long.parseLong(parts[0]);
-   String messageId = parts[1];
-   String actualContent = parts[2];
-   ```
+```java
+SecureMessage secureMessage = new SecureMessage(senderId, encryptedContent, signature, timestamp, messageId);
+```
 
-## 📁 安全文件传输协议
+### Decryption Flow
 
-### 传输流程
+1. **Verify**
+
+```java
+boolean valid = cryptoService.verifySignature(content, signature, senderPublicKey);
+```
+
+2. **Decrypt**
+
+```java
+String decryptedContent = cryptoService.decryptWithAES(encryptionResult, sessionKey);
+```
+
+3. **Integrity Check**
+
+```java
+String[] parts = decryptedContent.split(":", 3);
+long messageTimestamp = Long.parseLong(parts[0]);
+String messageId = parts[1];
+String actualContent = parts[2];
+```
+
+## 📁 Secure File Transfer Protocol
+
+### Transfer Flow
 
 ```
 Sender                           Receiver
@@ -318,7 +336,7 @@ Sender                           Receiver
   |<------------------------------|
 ```
 
-### 文件加密格式
+### Encrypted Format
 
 ```
 File Header (Encrypted):
@@ -328,112 +346,111 @@ File Header (Encrypted):
 └── Metadata (JSON)
 
 File Data (Encrypted):
-├── Chunk 1 (8KB, AES-256-GCM)
-├── Chunk 2 (8KB, AES-256-GCM)
+├── Chunk 1 (8 KB, AES-256-GCM)
+├── Chunk 2 (8 KB, AES-256-GCM)
 ├── ...
-└── Chunk N (≤8KB, AES-256-GCM)
+└── Chunk N (≤ 8 KB, AES-256-GCM)
 ```
 
-### 完整性验证
+### Integrity Verification
 
 ```java
-// 发送端计算校验和
+// Sender checksum
 MessageDigest digest = MessageDigest.getInstance("SHA-256");
 byte[] fileData = Files.readAllBytes(filePath);
 byte[] checksum = digest.digest(fileData);
 
-// 接收端验证校验和
+// Receiver verification
 byte[] receivedChecksum = digest.digest(receivedData);
 boolean valid = Arrays.equals(checksum, receivedChecksum);
 ```
 
-## 🔧 性能优化
+## 🔧 Performance Optimization
 
-### 加密性能
+### Crypto Performance
 
-**AES-256-GCM性能**：
-- **吞吐量**：~500MB/s (现代CPU)
-- **延迟**：<1ms (小消息)
-- **内存使用**：最小化缓冲区
+**AES-256-GCM:**
 
-**RSA-2048性能**：
-- **签名速度**：~1000 ops/s
-- **验证速度**：~30000 ops/s
-- **密钥生成**：~100ms
+* **Throughput:** ~500 MB/s (modern CPUs)
+* **Latency:** < 1 ms (small msgs)
+* **Memory:** minimal buffers
 
-### 优化策略
+**RSA-2048:**
 
-1. **密钥缓存**
-   ```java
-   // 会话密钥缓存，避免重复生成
-   private final Map<String, SecretKey> sessionKeyCache = new ConcurrentHashMap<>();
-   ```
+* **Sign:** ~1,000 ops/s
+* **Verify:** ~30,000 ops/s
+* **Keygen:** ~100 ms
 
-2. **批量操作**
-   ```java
-   // 批量消息处理，减少加密开销
-   public List<SecureMessage> encryptBatch(List<String> messages, String targetNodeId);
-   ```
+### Strategies
 
-3. **异步处理**
-   ```java
-   // 异步文件加密，不阻塞主线程
-   CompletableFuture<EncryptionResult> encryptFileAsync(Path filePath);
-   ```
-
-4. **内存管理**
-   ```java
-   // 及时清理敏感数据
-   Arrays.fill(sensitiveData, (byte) 0);
-   ```
-
-## 🛡️ 安全威胁模型
-
-### 威胁分析
-
-1. **被动攻击**
-   - **窃听**：网络流量监听
-   - **防护**：端到端加密
-   - **强度**：AES-256加密
-
-2. **主动攻击**
-   - **篡改**：消息内容修改
-   - **防护**：数字签名验证
-   - **强度**：RSA-2048签名
-
-3. **身份伪造**
-   - **冒充**：伪造节点身份
-   - **防护**：公钥身份验证
-   - **强度**：挑战-响应机制
-
-4. **重放攻击**
-   - **重放**：重复发送旧消息
-   - **防护**：时间戳验证
-   - **强度**：消息唯一性检查
-
-### 安全假设
-
-1. **密钥安全**：私钥不会泄露
-2. **算法安全**：使用的加密算法是安全的
-3. **实现安全**：没有实现漏洞
-4. **系统安全**：运行环境是可信的
-
-### 风险评估
-
-| 威胁类型 | 可能性 | 影响 | 风险级别 | 缓解措施 |
-|----------|--------|------|----------|----------|
-| 网络窃听 | 高 | 高 | 高 | 端到端加密 |
-| 消息篡改 | 中 | 高 | 中 | 数字签名 |
-| 身份伪造 | 低 | 高 | 中 | 身份验证 |
-| 密钥泄露 | 低 | 极高 | 中 | 密钥管理 |
-| 重放攻击 | 中 | 中 | 低 | 时间戳验证 |
-
-## 📊 安全审计
-
-### 审计日志
+1. **Key Caching**
 
 ```java
-// 安全事件记录
+private final Map<String, SecretKey> sessionKeyCache = new ConcurrentHashMap<>();
+```
+
+2. **Batch Ops**
+
+```java
+public List<SecureMessage> encryptBatch(List<String> messages, String targetNodeId);
+```
+
+3. **Async Crypto**
+
+```java
+CompletableFuture<EncryptionResult> encryptFileAsync(Path filePath);
+```
+
+4. **Memory Hygiene**
+
+```java
+Arrays.fill(sensitiveData, (byte) 0);
+```
+
+## 🛡️ Threat Model
+
+### Analysis
+
+1. **Passive**
+
+   * **Eavesdropping**
+   * **Mitigation:** E2E encryption (AES-256)
+
+2. **Active**
+
+   * **Tampering**
+   * **Mitigation:** Digital signatures (RSA-2048)
+
+3. **Impersonation**
+
+   * **Mitigation:** Public-key identity auth (challenge–response)
+
+4. **Replay**
+
+   * **Mitigation:** Timestamps + uniqueness checks
+
+### Assumptions
+
+1. Private keys remain secret
+2. Algorithms are secure as standardized
+3. Implementations are bug-free
+4. Runtime environment is trustworthy
+
+### Risk Assessment
+
+| Threat        | Likelihood | Impact   | Risk   | Mitigation            |
+| ------------- | ---------- | -------- | ------ | --------------------- |
+| Eavesdropping | High       | High     | High   | End-to-end encryption |
+| Tampering     | Medium     | High     | Medium | Digital signatures    |
+| Impersonation | Low        | High     | Medium | Identity auth         |
+| Key leakage   | Low        | Critical | Medium | Key management        |
+| Replay        | Medium     | Medium   | Low    | Timestamp checks      |
+
+## 📊 Security Auditing
+
+### Audit Log API
+
+```java
 public class SecurityAuditLog {
     public void logKeyGeneration(String nodeId);
     public void logKeyExchange(String nodeId, boolean success);
@@ -444,94 +461,97 @@ public class SecurityAuditLog {
 }
 ```
 
-### 监控指标
+### Monitoring Metrics
 
-1. **加密覆盖率**：加密消息占总消息的比例
-2. **认证成功率**：身份验证成功的比例
-3. **密钥交换频率**：密钥交换的频率
-4. **安全事件数量**：安全相关事件的数量
+1. **Encryption coverage** (encrypted vs total msgs)
+2. **Auth success rate**
+3. **Key exchange frequency**
+4. **Security incident counts**
 
-### 合规性检查
+### Compliance Checks
 
 ```java
-// 定期安全检查
 public class SecurityCompliance {
-    public boolean checkKeyStrength();           // 检查密钥强度
-    public boolean checkEncryptionCoverage();    // 检查加密覆盖率
-    public boolean checkAuthenticationPolicy();  // 检查认证策略
-    public boolean checkAuditLogs();            // 检查审计日志
+    public boolean checkKeyStrength();
+    public boolean checkEncryptionCoverage();
+    public boolean checkAuthenticationPolicy();
+    public boolean checkAuditLogs();
 }
 ```
 
-## 🔮 未来扩展
+## 🔮 Future Extensions
 
-### 计划功能
+### Planned Features
 
-1. **前向安全性**
-   - 实现Perfect Forward Secrecy
-   - 定期密钥轮换
-   - 历史消息保护
+1. **Forward Secrecy**
 
-2. **量子抗性**
-   - 集成后量子密码算法
-   - 混合加密方案
-   - 平滑迁移策略
+   * Perfect Forward Secrecy
+   * Periodic key rotation
+   * Historic message protection
 
-3. **零知识证明**
-   - 身份验证增强
-   - 隐私保护
-   - 可验证计算
+2. **Post-Quantum Readiness**
 
-4. **多方安全计算**
-   - 群组密钥协商
-   - 安全多方通信
-   - 隐私保护聚合
+   * PQC integration
+   * Hybrid schemes
+   * Smooth migration
 
-### 技术路线图
+3. **Zero-Knowledge Proofs**
+
+   * Stronger auth
+   * Privacy protection
+   * Verifiable computation
+
+4. **Multi-Party Security**
+
+   * Group key agreement
+   * Secure group messaging
+   * Privacy-preserving aggregation
+
+### Roadmap
 
 ```
 Phase 1 (Current): Basic Security
-├── AES-256 Encryption
-├── RSA-2048 Key Exchange
-├── Digital Signatures
-└── Basic Authentication
+├─ AES-256 Encryption
+├─ RSA-2048 Key Exchange
+├─ Digital Signatures
+└─ Basic Authentication
 
 Phase 2 (Next): Enhanced Security
-├── Perfect Forward Secrecy
-├── Key Rotation
-├── Advanced Authentication
-└── Security Monitoring
+├─ Perfect Forward Secrecy
+├─ Key Rotation
+├─ Advanced Authentication
+└─ Security Monitoring
 
 Phase 3 (Future): Quantum-Ready
-├── Post-Quantum Cryptography
-├── Hybrid Encryption
-├── Zero-Knowledge Proofs
-└── Multi-Party Computation
+├─ Post-Quantum Crypto
+├─ Hybrid Encryption
+├─ Zero-Knowledge Proofs
+└─ Multi-Party Computation
 ```
 
 ---
 
-## 📚 参考资料
+## 📚 References
 
-### 标准和规范
+### Standards & Specs
 
-- **RFC 5246**: TLS 1.2 Protocol
-- **RFC 8446**: TLS 1.3 Protocol
-- **NIST SP 800-57**: Key Management Guidelines
-- **FIPS 140-2**: Security Requirements for Cryptographic Modules
+* **RFC 5246** — TLS 1.2
+* **RFC 8446** — TLS 1.3
+* **NIST SP 800-57** — Key Management
+* **FIPS 140-2** — Crypto Module Security
 
-### 加密算法
+### Algorithms
 
-- **AES**: Advanced Encryption Standard (NIST FIPS 197)
-- **RSA**: Rivest-Shamir-Adleman Public Key Cryptosystem
-- **SHA-256**: Secure Hash Algorithm (NIST FIPS 180-4)
-- **GCM**: Galois/Counter Mode (NIST SP 800-38D)
+* **AES** — NIST FIPS 197
+* **RSA** — PKCS #1
+* **SHA-256** — NIST FIPS 180-4
+* **GCM** — NIST SP 800-38D
 
-### 安全框架
+### Security Frameworks
 
-- **OWASP**: Open Web Application Security Project
-- **NIST Cybersecurity Framework**
-- **ISO 27001**: Information Security Management
-- **Common Criteria**: Security Evaluation Standards
+* **OWASP**
+* **NIST Cybersecurity Framework**
+* **ISO 27001**
+* **Common Criteria**
 
-本技术文档提供了P2P聊天应用安全机制的完整技术细节，为开发者和安全专家提供深入的实现参考。
+This document provides end-to-end technical details of the P2P chat app’s security mechanisms, serving as a deep implementation reference for developers and security practitioners.
