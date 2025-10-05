@@ -1,78 +1,89 @@
-# 快速修复指南
+# Quick Fix Guide
 
-## ❌ 常见错误
+## ❌ Common Errors
 
-### 1. 如果看到编码错误或乱码
-批处理脚本可能出现编码问题。
+### 1. Seeing encoding errors or garbled text
 
-### 2. 如果看到 "Module javafx.controls not found"
-您的Java环境缺少JavaFX模块。
+Your batch script may have an encoding issue.
 
-## 🚀 立即解决方案
+### 2. Seeing “Module javafx.controls not found”
 
-### 如果缺少JavaFX模块：
+Your Java environment is missing the JavaFX modules.
 
-**最简单方法（推荐）：**
-1. 下载包含JavaFX的Java：https://www.azul.com/downloads/?package=jdk-fx
-2. 安装后重新运行 `start.bat`
+## 🚀 Immediate Solutions
 
-**快速测试方法：**
+### If JavaFX modules are missing
+
+**Easiest (recommended):**
+
+1. Download a JDK that includes JavaFX: [https://www.azul.com/downloads/?package=jdk-fx](https://www.azul.com/downloads/?package=jdk-fx)
+2. Install it, then run `start.bat` again.
+
+**Quick test:**
+
 ```cmd
-# 运行命令行版本（无需JavaFX）
+:: Run the CLI version (no JavaFX required)
 start-cli.bat
 ```
 
-### 如果有JavaFX但仍有问题：
+### If JavaFX is installed but problems persist
 
-**方法1：直接命令行运行**
+**Method 1: Run directly from the command line**
 
-打开命令提示符（cmd），进入项目目录，运行：
+Open Command Prompt (cmd), cd into the project directory, then run:
 
 ```cmd
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target\p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-### 方法2：使用简化脚本
+**Method 2: Use the simplified script**
 
-双击运行：`start.bat`
+Double-click: `start.bat`
 
-### 方法3：运行命令行版本
+**Method 3: Run the CLI version**
 
-如果GUI版本仍有问题，运行命令行版本：
+If the GUI still won’t launch:
 
 ```cmd
-# 首先编译（如果需要）
+:: Compile first (if needed)
 mvn clean compile
 
-# 然后运行
+:: Then run
 java -cp target\classes com.group7.chat.Main
 ```
 
-或双击：`start-cli.bat`
+Or double-click: `start-cli.bat`
 
-## 🔧 如果Java命令不工作
+## 🔧 If the `java` command doesn’t work
 
-1. **检查Java是否安装**：
+1. **Check if Java is installed:**
+
    ```cmd
    java -version
    ```
 
-2. **如果没有安装Java**：
-   - 下载并安装 Java 11 或更高版本
-   - 推荐：Azul Zulu JDK (包含JavaFX): https://www.azul.com/downloads/?package=jdk-fx
+2. **If Java isn’t installed:**
 
-3. **如果Java已安装但命令不工作**：
-   - 检查PATH环境变量是否包含Java路径
-   - 重启命令提示符
+   * Install Java 11 or newer.
+   * Recommended: Azul Zulu JDK (with JavaFX): [https://www.azul.com/downloads/?package=jdk-fx](https://www.azul.com/downloads/?package=jdk-fx)
 
-## 📋 完整步骤
+3. **If Java is installed but the command fails:**
 
-1. 下载项目
-2. 解压到某个目录
-3. 打开命令提示符
-4. 进入项目目录：`cd C:\path\to\P2pChat`
-5. 运行：`java --module-path . --add-modules javafx.controls,javafx.fxml -jar target\p2p-chat-1.0-SNAPSHOT.jar`
+   * Ensure your PATH includes the Java bin directory.
+   * Restart Command Prompt.
 
-## 💡 如果仍有问题
+## 📋 Full Steps
 
-查看详细解决方案：`JAVAFX_RUNTIME_SOLUTIONS.md`
+1. Download the project
+2. Extract to a directory
+3. Open Command Prompt
+4. Go to the project folder: `cd C:\path\to\P2pChat`
+5. Run:
+
+   ```cmd
+   java --module-path . --add-modules javafx.controls,javafx.fxml -jar target\p2p-chat-1.0-SNAPSHOT.jar
+   ```
+
+## 💡 Still having issues?
+
+See the detailed guide: `JAVAFX_RUNTIME_SOLUTIONS.md`
