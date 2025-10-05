@@ -1,54 +1,61 @@
-# P2P聊天应用安全架构设计
+# P2P Chat App — Security Architecture Design
 
-## 安全目标
+## Security Objectives
 
-### 核心安全需求
-- **机密性**：确保消息内容只有发送方和接收方能够读取
-- **完整性**：保证消息在传输过程中未被篡改
-- **身份认证**：验证通信双方的身份真实性
-- **不可否认性**：防止发送方否认已发送的消息
-- **前向安全性**：即使长期密钥泄露，历史消息仍然安全
+### Core Security Requirements
 
-### 威胁模型
-- **被动攻击**：网络窃听、流量分析
-- **主动攻击**：消息篡改、重放攻击、中间人攻击
-- **节点妥协**：恶意节点加入网络
-- **密钥泄露**：长期密钥或会话密钥的泄露
+* **Confidentiality:** Only the sender and intended recipient can read message content.
+* **Integrity:** Ensure messages aren’t altered in transit.
+* **Authentication:** Verify the identities of both parties.
+* **Non-repudiation:** Prevent senders from denying messages they sent.
+* **Forward secrecy:** Past messages remain secure even if long-term keys are later compromised.
 
-## 加密方案设计
+### Threat Model
 
-### 混合加密架构
-采用**RSA + AES**混合加密方案：
-- **RSA-2048**：用于密钥交换和数字签名
-- **AES-256-GCM**：用于消息和文件的对称加密
-- **ECDH**：用于密钥协商（可选增强）
+* **Passive attacks:** Eavesdropping, traffic analysis.
+* **Active attacks:** Tampering, replay, man-in-the-middle.
+* **Node compromise:** Malicious peers joining the network.
+* **Key leakage:** Exposure of long-term or session keys.
 
-### 密钥层次结构
+## Cryptographic Scheme
+
+### Hybrid Encryption
+
+Use a **RSA + AES** hybrid:
+
+* **RSA-2048:** key exchange and digital signatures.
+* **AES-256-GCM:** symmetric encryption for messages and files.
+* **ECDH:** optional enhancement for key agreement.
+
+### Key Hierarchy
+
 ```
-身份密钥对 (RSA-2048)
-├── 长期公私钥对
-├── 用于身份验证和密钥交换
-└── 节点启动时生成或加载
+Identity Key Pair (RSA-2048)
+├── Long-term public/private keys
+├── Used for identity/auth and key exchange
+└── Generated or loaded at node startup
 
-会话密钥 (AES-256)
-├── 每个对话独立的会话密钥
-├── 使用RSA加密传输
-└── 定期更新（可选）
+Session Key (AES-256)
+├── One per conversation
+├── Transmitted encrypted with RSA
+└── Rotated periodically (optional)
 
-消息密钥 (AES-256)
-├── 从会话密钥派生
-├── 每条消息使用唯一IV
-└── 支持前向安全性
+Message Key (AES-256)
+├── Derived from the session key
+├── Unique IV per message
+└── Supports forward secrecy
 ```
 
-## 安全协议设计
+## Security Protocols
 
-### 节点认证协议
-1. **节点注册**：生成RSA密钥对，公钥作为节点身份标识
-2. **身份验证**：使用私钥签名证明身份
-3. **信任建立**：基于公钥指纹的信任机制
+### Node Authentication Protocol
 
-### 密钥交换协议
+1. **Node registration:** generate RSA key pair; public key is the node’s identity.
+2. **Identity proof:** sign a challenge with the private key.
+3. **Trust establishment:** verify and pin public-key fingerprints.
+
+### Key Exchange Protocol
+
 ```
 Alice                           Bob
   |                              |
@@ -62,87 +69,96 @@ Alice                           Bob
   |                              |
 ```
 
-### 消息加密协议
-1. **消息准备**：原始消息 + 时间戳 + 序列号
-2. **加密处理**：AES-256-GCM加密，生成认证标签
-3. **传输格式**：加密消息 + IV + 认证标签
-4. **解密验证**：验证认证标签，解密消息内容
+### Message Encryption Protocol
 
-## 实现架构
+1. **Prepare message:** plaintext + timestamp + sequence number.
+2. **Encrypt:** AES-256-GCM, producing an auth tag.
+3. **Transmit:** ciphertext + IV + auth tag.
+4. **Decrypt/verify:** validate the tag; only then decrypt.
 
-### 核心安全组件
+## Implementation Architecture
+
+### Core Security Components
+
 ```
 SecurityManager
-├── 密钥管理器 (KeyManager)
-├── 加密服务 (CryptoService)
-├── 身份验证器 (AuthenticationService)
-└── 安全通信层 (SecureChannel)
+├── KeyManager
+├── CryptoService
+├── AuthenticationService
+└── SecureChannel
 
 KeyManager
-├── 生成和存储密钥对
-├── 密钥交换协调
-└── 会话密钥管理
+├── Generate/store key pairs
+├── Coordinate key exchanges
+└── Manage session keys
 
 CryptoService
-├── RSA加密/解密
-├── AES加密/解密
-├── 数字签名/验证
-└── 哈希计算
+├── RSA encrypt/decrypt
+├── AES encrypt/decrypt
+├── Sign/verify
+└── Hashing
 
 AuthenticationService
-├── 节点身份验证
-├── 消息完整性验证
-└── 重放攻击防护
+├── Node identity verification
+├── Message integrity checks
+└── Replay protection
 
 SecureChannel
-├── 安全消息传输
-├── 密钥协商
-└── 会话管理
+├── Secure message transport
+├── Key negotiation
+└── Session lifecycle
 ```
 
-### 安全存储
-- **密钥存储**：使用Java KeyStore保护私钥
-- **配置加密**：敏感配置信息加密存储
-- **安全删除**：内存中密钥的安全清理
+### Secure Storage
 
-## 性能考虑
+* **Key storage:** protect private keys with Java KeyStore.
+* **Encrypted config:** store sensitive settings encrypted.
+* **Secure erasure:** zeroize keys in memory after use.
 
-### 优化策略
-- **会话密钥缓存**：避免重复的RSA操作
-- **批量加密**：多条消息合并加密
-- **异步处理**：加密操作在后台线程执行
-- **硬件加速**：利用AES-NI指令集
+## Performance Considerations
 
-### 性能指标
-- **RSA操作**：密钥交换 < 100ms
-- **AES加密**：消息加密 < 1ms
-- **整体延迟**：安全通信增加延迟 < 10ms
+### Optimizations
 
-## 安全配置
+* **Session key caching:** reduce repeated RSA operations.
+* **Batch encryption:** group multiple messages per encrypt call.
+* **Async processing:** run crypto on background threads.
+* **HW acceleration:** leverage AES-NI when available.
 
-### 可配置参数
-- **加密强度**：RSA密钥长度、AES密钥长度
-- **密钥更新**：会话密钥更新频率
-- **认证模式**：严格认证 vs 宽松模式
-- **日志级别**：安全事件记录详细程度
+### Targets
 
-### 默认安全策略
-- **强制加密**：所有通信必须加密
-- **身份验证**：新节点需要身份验证
-- **密钥轮换**：会话密钥每小时更新
-- **审计日志**：记录所有安全相关事件
+* **RSA ops:** key exchange < 100 ms.
+* **AES:** per-message encryption < 1 ms.
+* **Overall overhead:** added latency from security < 10 ms.
 
-## 合规性考虑
+## Security Configuration
 
-### 标准遵循
-- **FIPS 140-2**：密码学模块安全要求
-- **RFC 3447**：RSA加密标准
-- **RFC 3394**：AES密钥包装
-- **RFC 5652**：密码学消息语法
+### Tunables
 
-### 出口管制
-- 使用标准Java加密库，符合出口管制要求
-- 提供加密强度配置选项
-- 支持受限环境的弱加密模式
+* **Cipher strength:** RSA key size, AES key size.
+* **Key rotation:** session key update frequency.
+* **Auth mode:** strict vs. permissive.
+* **Logging level:** verbosity of security events.
 
-这个安全架构为P2P聊天应用提供了全面的安全保护，确保通信的机密性、完整性和可用性。
+### Default Policies
+
+* **Encryption required:** all traffic must be encrypted.
+* **Identity verification:** new nodes must authenticate.
+* **Key rotation:** rotate session keys hourly.
+* **Audit logging:** record all security-relevant events.
+
+## Compliance
+
+### Standards
+
+* **FIPS 140-2:** cryptographic module security.
+* **RFC 3447:** RSA (PKCS #1).
+* **RFC 3394:** AES key wrap.
+* **RFC 5652:** Cryptographic Message Syntax (CMS).
+
+### Export Controls
+
+* Use standard Java crypto providers (meets export requirements).
+* Provide configurable cipher strengths.
+* Offer a reduced-strength mode for restricted environments.
+
+This security architecture delivers comprehensive protection for the P2P chat application, safeguarding the confidentiality, integrity, and availability of communications.
