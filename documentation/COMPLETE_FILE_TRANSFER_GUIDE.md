@@ -1,166 +1,188 @@
-# 完整文件传输功能实现指南
+# **Complete File Transfer Implementation Guide**
 
-## 🎉 功能完成
+## 🎉 Feature Complete
 
-我已经为P2P聊天应用实现了**完整的文件传输功能**！现在您可以真正地发送和接收文件了。
+I’ve implemented **full file transfer** for the P2P chat app—sending and receiving real files now works end to end.
 
-## 📋 新增功能
+## 📋 What’s New
 
-### 1. 实际文件数据传输
-- ✅ 基于Socket的文件传输服务
-- ✅ 多线程并发传输支持
-- ✅ 文件传输进度显示
-- ✅ 自动错误处理和重试机制
+### 1) Actual File Data Transfer
 
-### 2. 文件传输流程
-1. **发送方**选择文件并发送传输请求
-2. **接收方**收到确认对话框，选择接受或拒绝
-3. **接受后**选择保存位置
-4. **自动开始**实际的文件数据传输
-5. **实时显示**传输进度
-6. **完成后**通知双方传输结果
+* ✅ Socket-based file transfer service
+* ✅ Multithreaded concurrent transfers
+* ✅ Transfer progress display
+* ✅ Automatic error handling and retries
 
-### 3. 技术实现
+### 2) Transfer Flow
 
-#### FileTransferService类
-- 专门的文件传输服务
-- 使用独立端口（主端口+1000）
-- 支持并发传输
-- 传输进度监控
+1. **Sender** selects a file and initiates a request
+2. **Receiver** gets a confirmation dialog to accept/decline
+3. **If accepted**, chooses a save location
+4. **Transfer starts** automatically
+5. **Progress** is shown in real time
+6. **On completion**, both sides are notified of the result
 
-#### 文件传输协议
+### 3) Technical Implementation
+
+#### `FileTransferService`
+
+* Dedicated service for file transfers
+* Uses a separate port (main port + 1000)
+* Supports concurrent transfers
+* Monitors transfer progress
+  
+#### File Transfer Protocol
+
 ```
-发送头格式: SEND:sessionId:fileName:fileSize:savePath
-数据传输: 8KB缓冲区分块传输
-进度显示: 每80KB显示一次进度
-```
-
-## 🔧 使用方法
-
-### 发送文件
-1. 在聊天界面点击"文件"按钮
-2. 选择要发送的文件
-3. 确认发送（群聊或私聊）
-4. 等待对方接受
-5. 自动开始传输
-
-### 接收文件
-1. 收到文件传输请求对话框
-2. 查看文件信息（名称、大小）
-3. 点击"确定"接受
-4. 选择保存位置
-5. 自动开始接收
-
-## 📁 文件保存位置
-
-### 默认位置
-```
-用户主目录/P2PChat_Downloads/
+Header format (send): SEND:sessionId:fileName:fileSize:savePath
+Data transfer: chunked with an 8KB buffer
+Progress display: update every 80KB
 ```
 
-### 自定义位置
-- 接受文件时可以选择任意保存位置
-- 支持自动重命名避免文件覆盖
-- 自动创建目录结构
+## 🔧 How to Use
 
-## 🚀 性能特性
+### Sending a File
 
-### 传输性能
-- **缓冲区大小**: 8KB
-- **进度更新**: 每80KB显示一次
-- **并发支持**: 多个文件同时传输
-- **内存优化**: 流式传输，不占用大量内存
+1. Click the **“File”** button in the chat window.
+2. Select the file to send.
+3. Confirm the target (group or direct message).
+4. Wait for the recipient to accept.
+5. Transfer starts automatically.
 
-### 错误处理
-- 网络中断自动检测
-- 文件不存在错误提示
-- 磁盘空间不足警告
-- 传输失败自动通知
+### Receiving a File
 
-## 🔍 调试信息
+1. A file transfer request dialog appears.
+2. Review the file info (name, size).
+3. Click **“OK”** to accept.
+4. Choose a save location.
+5. Receiving starts automatically.
 
-传输过程中会在控制台显示详细日志：
+## 📁 Save Location
+
+### Default Path
+
 ```
-[文件传输] 开始发送文件到 Node-xxx (localhost:9081)
-[文件传输] 进度: 25% (2048/8192 bytes)
-[文件传输] 进度: 50% (4096/8192 bytes)
-[文件传输] 进度: 75% (6144/8192 bytes)
-[文件传输] 文件发送完成: example.png (8192 bytes)
+<user home>/P2PChat_Downloads/
 ```
 
-## 🛠️ 技术架构
+### Custom Location
 
-### 端口分配
-- **主通信端口**: 8080, 8081, 8082...
-- **文件传输端口**: 9080, 9081, 9082... (主端口+1000)
+* Choose any save path when accepting a file
+* Auto-rename to avoid overwriting
+* Automatically creates needed directories
 
-### 服务组件
-1. **Node**: 主节点服务
-2. **MessageRouter**: 消息路由
-3. **FileTransferService**: 文件传输服务
-4. **PeerConnection**: 节点连接管理
+## 🚀 Performance Features
 
-### 数据流
+### Transfer Performance
+
+* **Buffer size:** 8 KB
+* **Progress updates:** every 80 KB
+* **Concurrency:** multiple files in parallel
+* **Memory optimization:** streaming I/O, no large in-memory buffers
+
+### Error Handling
+
+* Auto-detect network interruptions
+* “File not found” prompts
+* Low disk space warnings
+* Automatic failure notifications
+
+## 🔍 Debug Info
+
+During transfer, detailed logs appear in the console:
+
 ```
-发送方 → 文件请求消息 → 接收方
-接收方 → 接受/拒绝消息 → 发送方
-发送方 → 文件数据流 → 接收方
+[File Transfer] Starting send to Node-xxx (localhost:9081)
+[File Transfer] Progress: 25% (2048/8192 bytes)
+[File Transfer] Progress: 50% (4096/8192 bytes)
+[File Transfer] Progress: 75% (6144/8192 bytes)
+[File Transfer] File sent: example.png (8192 bytes)
 ```
 
-## ⚠️ 注意事项
+## 🛠️ Technical Architecture
 
-### 文件大小限制
-- 当前限制：100MB
-- 可在代码中调整限制
-- 大文件传输需要更多时间
+### Port Allocation
 
-### 网络要求
-- 需要P2P连接正常
-- 防火墙可能阻止文件传输端口
-- 建议在同一网络环境下测试
+* **Main communication ports:** 8080, 8081, 8082, …
+* **File transfer ports:** 9080, 9081, 9082, … (main port + 1000)
 
-### 安全提示
-- 接收文件前确认发送者身份
-- 对可执行文件要特别谨慎
-- 建议使用杀毒软件扫描接收的文件
+### Service Components
 
-## 🔮 后续改进计划
+1. **Node:** Primary node service
+2. **MessageRouter:** Message routing
+3. **FileTransferService:** File transfer service
+4. **PeerConnection:** Peer connection management
 
-### 短期改进
-- [ ] 断点续传功能
-- [ ] 传输速度显示
-- [ ] 批量文件传输
-- [ ] 传输历史记录
+### Data Flow
 
-### 长期规划
-- [ ] 文件加密传输
-- [ ] 压缩传输优化
-- [ ] 云存储集成
-- [ ] 移动端支持
+```
+Sender → file request message → Receiver
+Receiver → accept/decline message → Sender
+Sender → file data stream → Receiver
+```
 
-## 🎯 测试建议
+## ⚠️ Notes
 
-### 基本测试
-1. 启动两个节点实例
-2. 连接节点
-3. 发送小文件（<1MB）
-4. 验证文件完整性
+### File Size Limit
 
-### 压力测试
-1. 发送大文件（接近100MB）
-2. 同时传输多个文件
-3. 网络中断恢复测试
-4. 长时间运行稳定性测试
+* Current limit: 100 MB
+* Configurable in code
+* Large transfers take longer
+
+### Network Requirements
+
+* P2P connectivity must be healthy
+* Firewalls may block file transfer ports
+* Testing on the same network is recommended
+
+### Security Tips
+
+* Verify the sender’s identity before accepting
+* Be extra cautious with executables
+* Scan received files with antivirus software
+
+## 🔮 Future Improvements
+
+### Short-term
+
+* [ ] Resume interrupted transfers
+* [ ] Display transfer speed
+* [ ] Batch file transfers
+* [ ] Transfer history
+
+### Long-term
+
+* [ ] Encrypted file transfers
+* [ ] Compression-based optimization
+* [ ] Cloud storage integration
+* [ ] Mobile support
+
+## 🎯 Test Recommendations
+
+### Basic Tests
+
+1. Launch two node instances
+2. Connect the nodes
+3. Send a small file (<1 MB)
+4. Verify file integrity
+
+### Stress Tests
+
+1. Send a large file (near 100 MB)
+2. Transfer multiple files concurrently
+3. Test recovery from network interruptions
+4. Run long-duration stability tests
 
 ---
 
-**🎉 恭喜！您的P2P聊天应用现在具备了完整的文件传输功能！**
+**🎉 Congrats! Your P2P chat app now has full file transfer capability!**
 
-现在您可以：
-- ✅ 真正发送和接收文件
-- ✅ 看到传输进度
-- ✅ 选择保存位置
-- ✅ 处理传输错误
-- ✅ 支持群聊和私聊文件传输
+You can now:
 
-所有功能已经过编译测试并推送到GitHub仓库。立即试用这些新功能吧！
+* ✅ Send and receive real files
+* ✅ View transfer progress
+* ✅ Choose the save location
+* ✅ Handle transfer errors
+* ✅ Transfer files in group and direct chats
+
+All features have been built, compiled, and pushed to GitHub. Give them a try!
