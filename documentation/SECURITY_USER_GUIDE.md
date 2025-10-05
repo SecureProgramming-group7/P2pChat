@@ -1,373 +1,368 @@
-# P2P聊天应用安全功能使用指南
+# 🔐 P2P Chat App — Secure Features User Guide
 
-## 🔐 安全功能概述
+## 🔐 Overview
 
-本P2P聊天应用实现了企业级的安全通信机制，提供端到端加密、身份验证、数字签名等完整的安全保护。
+This P2P chat app implements enterprise-grade security with end-to-end encryption, authentication, and digital signatures.
 
-### 🎯 安全特性
+### 🎯 Security Features
 
-- **端到端加密**：使用AES-256加密所有消息内容
-- **RSA密钥交换**：2048位RSA密钥确保密钥交换安全
-- **数字签名**：防止消息篡改和伪造
-- **身份验证**：基于公钥的节点身份验证
-- **安全文件传输**：文件传输过程全程加密
-- **密钥管理**：自动化的密钥生成、存储和轮换
+* **End-to-end encryption:** AES-256 for all message content
+* **RSA key exchange:** 2048-bit RSA secures key exchange
+* **Digital signatures:** Prevent tampering and forgery
+* **Identity verification:** Public-key–based node auth
+* **Secure file transfer:** Fully encrypted file sending
+* **Key management:** Automated key generation, storage, rotation
 
-## 🚀 快速开始
+---
 
-### 启用安全功能
+## 🚀 Quick Start
 
-安全功能在节点启动时自动初始化：
+### Enable Security
+
+Security initializes automatically when a node starts:
 
 ```java
 Node node = new Node(8080);
 node.start();
 
-// 检查安全状态
+// Check security status
 if (node.isSecurityEnabled()) {
-    System.out.println("安全功能已启用");
+    System.out.println("Security enabled");
     System.out.println(node.getSecurityManager().getSecurityStatus());
 }
 ```
 
-### 基本安全设置
+### Basic Security Settings
 
 ```java
 SecurityManager securityManager = node.getSecurityManager();
 
-// 启用严格模式（只允许加密通信）
+// Strict mode (encrypted-only traffic)
 securityManager.setStrictMode(true);
 
-// 查看安全状态
+// View status
 String status = securityManager.getSecurityStatus();
 System.out.println(status);
 ```
 
-## 🔑 密钥管理
+---
 
-### 自动密钥生成
+## 🔑 Key Management
 
-系统启动时自动生成节点密钥对：
+### Auto Key Generation
+
+On startup a node keypair is created:
 
 ```
-=== 安全管理器初始化 ===
-[密钥管理] 生成新的节点密钥对
-[密钥管理] 密钥对已保存到: keys/
-[密钥管理] 公钥指纹: ABC123...
+=== Security Manager Init ===
+[KeyManager] Generating new node key pair
+[KeyManager] Saved to: keys/
+[KeyManager] Public key fingerprint: ABC123...
 ```
 
-### 密钥交换
+### Key Exchange
 
-与新节点建立连接时自动进行密钥交换：
+A key exchange runs automatically when connecting to a new node:
 
 ```java
-// 手动触发密钥交换
+// Manually trigger key exchange
 boolean success = securityManager.handleKeyExchange("target-node-id");
 if (success) {
-    System.out.println("密钥交换成功");
+    System.out.println("Key exchange succeeded");
 }
 ```
 
-### 密钥状态查看
+### Inspect Key State
 
 ```java
 KeyManager keyManager = securityManager.getKeyManager();
 
-// 检查会话密钥
 boolean hasSessionKey = keyManager.hasSessionKey("node-id");
+boolean hasPublicKey  = keyManager.hasPublicKey("node-id");
 
-// 检查公钥
-boolean hasPublicKey = keyManager.hasPublicKey("node-id");
-
-// 获取统计信息
 int sessionKeyCount = keyManager.getSessionKeyCount();
-int publicKeyCount = keyManager.getPublicKeyCount();
+int publicKeyCount  = keyManager.getPublicKeyCount();
 ```
 
-## 💬 安全消息传输
+---
 
-### 自动加密
+## 💬 Secure Messaging
 
-发送消息时系统自动判断是否加密：
+### Automatic Encryption
+
+Messages are encrypted automatically when keys exist:
 
 ```java
-// 发送普通消息（如果有密钥会自动加密）
-Message message = new Message(Message.Type.CHAT, nodeId, "Hello World!");
-String processedMessage = securityManager.processOutgoingMessage(message, targetNodeId);
+// Send (auto-encrypts if keys available)
+Message msg = new Message(Message.Type.CHAT, nodeId, "Hello World!");
+String processed = securityManager.processOutgoingMessage(msg, targetNodeId);
 
-// 接收消息时自动解密
-Message receivedMessage = securityManager.processIncomingMessage(rawMessage, senderNodeId);
+// Receive (auto-decrypts)
+Message received = securityManager.processIncomingMessage(rawMessage, senderNodeId);
 ```
 
-### 强制加密模式
+### Enforce Encryption
 
 ```java
-// 启用严格模式，只允许加密通信
-securityManager.setStrictMode(true);
-
-// 此时所有消息都必须加密，否则拒绝发送/接收
+securityManager.setStrictMode(true);  // Rejects any unencrypted traffic
 ```
 
-### 消息完整性验证
+### Integrity Verification
 
-所有消息都包含数字签名，自动验证：
+All messages carry signatures and are verified automatically:
 
 ```
-[安全管理器] 消息完整性验证通过: node-123
-[安全管理器] 消息签名验证成功: node-456
+[Security] Integrity OK: node-123
+[Security] Signature verified: node-456
 ```
 
-## 📁 安全文件传输
+---
 
-### 发送加密文件
+## 📁 Secure File Transfer
+
+### Send Encrypted Files
 
 ```java
 SecurityManager securityManager = node.getSecurityManager();
 
-// 发送安全文件
-SecureFileTransferService.TransferResult result = 
-    securityManager.sendSecureFile("target-node-id", "/path/to/file.txt", "/save/path/file.txt");
+SecureFileTransferService.TransferResult result =
+    securityManager.sendSecureFile("target-node-id",
+                                   "/path/to/file.txt",
+                                   "/save/path/file.txt");
 
 if (result.isSuccess()) {
-    System.out.println("文件传输成功: " + result.getBytesTransferred() + " bytes");
+    System.out.println("File sent: " + result.getBytesTransferred() + " bytes");
 } else {
-    System.err.println("文件传输失败: " + result.getErrorMessage());
+    System.err.println("File transfer failed: " + result.getErrorMessage());
 }
 ```
 
-### 接收加密文件
-
-文件接收过程自动处理：
+### Receive Encrypted Files
 
 ```
-[安全文件传输] 收到文件传输请求: document.pdf (1.2MB)
-[安全文件传输] 开始解密文件...
-[安全文件传输] 文件解密完成，保存到: /downloads/document.pdf
-[安全文件传输] 文件完整性验证通过
+[SecureFile] Incoming request: document.pdf (1.2MB)
+[SecureFile] Decrypting...
+[SecureFile] Saved to: /downloads/document.pdf
+[SecureFile] Integrity verified
 ```
 
-## 🛡️ 身份验证
+---
 
-### 节点身份验证
+## 🛡️ Authentication
+
+### Node Authentication
 
 ```java
 AuthenticationService authService = securityManager.getAuthenticationService();
 
-// 验证节点身份
-AuthenticationService.AuthenticationResult result = 
+AuthenticationService.AuthenticationResult result =
     securityManager.authenticateNode("node-id", "public-key-string");
 
 switch (result) {
-    case SUCCESS:
-        System.out.println("节点身份验证成功");
-        break;
-    case FAILED:
-        System.out.println("节点身份验证失败");
-        break;
-    case PENDING:
-        System.out.println("身份验证进行中...");
-        break;
+    case SUCCESS: System.out.println("Authentication succeeded"); break;
+    case FAILED:  System.out.println("Authentication failed");    break;
+    case PENDING: System.out.println("Authenticating...");        break;
 }
 ```
 
-### 信任级别管理
+### Trust Levels
 
 ```java
-// 查看节点信任级别
-int trustLevel = authService.getTrustLevel("node-id");
-System.out.println("信任级别: " + trustLevel + "/100");
+int trust = authService.getTrustLevel("node-id");
+System.out.println("Trust: " + trust + "/100");
 
-// 更新信任级别
 authService.updateTrustLevel("node-id", 85);
 ```
 
-### 身份证书
+### Identity Certificates
 
 ```java
-// 导出节点证书
-String certificate = securityManager.exportNodeCertificate();
-System.out.println("节点证书: " + certificate);
+String cert = securityManager.exportNodeCertificate();
+System.out.println("Certificate: " + cert);
 
-// 导入并验证证书
-boolean valid = securityManager.importNodeCertificate(certificate);
-if (valid) {
-    System.out.println("证书验证成功");
-}
+boolean valid = securityManager.importNodeCertificate(cert);
+if (valid) System.out.println("Certificate verified");
 ```
 
-## 📊 安全监控
+---
 
-### 实时安全状态
+## 📊 Security Monitoring
+
+### Real-Time Status
 
 ```java
-// 获取完整安全状态
 String securityStatus = securityManager.getSecurityStatus();
 System.out.println(securityStatus);
 ```
 
-输出示例：
+Example:
+
 ```
-=== 安全状态摘要 ===
-安全功能: 启用
-严格模式: 启用
-节点ID: Node-1234567890
-会话密钥数量: 3
-公钥数量: 5
-节点统计: 总计=5, 已验证=3, 可信=2, 活跃挑战=1
-活跃文件传输: 0
+=== Security Summary ===
+Security: Enabled
+Strict Mode: On
+Node ID: Node-1234567890
+Session Keys: 3
+Known Public Keys: 5
+Nodes: total=5, verified=3, trusted=2, active challenges=1
+Active File Transfers: 0
 ```
 
-### 加密状态检查
+### Encryption Status per Peer
 
 ```java
-SecureMessageHandler messageHandler = securityManager.getSecureMessageHandler();
-
-// 检查与特定节点的加密状态
-String encryptionStatus = messageHandler.getEncryptionStatus("node-id");
-System.out.println("加密状态: " + encryptionStatus);
-// 输出: "完全加密" / "需要密钥交换" / "未加密"
+SecureMessageHandler h = securityManager.getSecureMessageHandler();
+String state = h.getEncryptionStatus("node-id");
+System.out.println("Encryption: " + state);
+// "Fully Encrypted" / "Key Exchange Required" / "Unencrypted"
 ```
-
-## ⚙️ 高级配置
-
-### 安全参数调整
-
-```java
-// 禁用安全功能（仅用于测试）
-securityManager.setSecurityEnabled(false);
-
-// 重新启用安全功能
-securityManager.setSecurityEnabled(true);
-
-// 检查安全功能状态
-boolean isEnabled = securityManager.isSecurityEnabled();
-```
-
-### 密钥轮换
-
-```java
-KeyManager keyManager = securityManager.getKeyManager();
-
-// 移除过期的会话密钥
-keyManager.removeSessionKey("old-node-id");
-
-// 重新生成会话密钥
-SecretKey newSessionKey = keyManager.generateSessionKey();
-keyManager.storeSessionKey("node-id", newSessionKey);
-```
-
-### 清理和维护
-
-系统自动执行定期维护任务：
-
-- **每5分钟**：清理过期的身份验证挑战
-- **每30分钟**：输出安全统计信息
-- **启动时**：验证密钥文件完整性
-
-## 🔧 故障排除
-
-### 常见问题
-
-**1. 密钥交换失败**
-```
-[安全管理器] 密钥交换失败: target-node-id
-```
-解决方案：
-- 检查目标节点是否在线
-- 确认目标节点的公钥是否正确
-- 重新尝试连接
-
-**2. 消息解密失败**
-```
-[安全管理器] 处理传入消息失败: 解密错误
-```
-解决方案：
-- 检查会话密钥是否存在
-- 验证消息格式是否正确
-- 重新进行密钥交换
-
-**3. 文件传输加密失败**
-```
-[安全文件传输] 文件加密失败: 缺少会话密钥
-```
-解决方案：
-- 确保与目标节点已建立会话密钥
-- 手动触发密钥交换
-- 检查文件权限
-
-### 调试模式
-
-启用详细的安全日志：
-
-```java
-// 在启动时添加JVM参数
--Djava.util.logging.level=FINE
-```
-
-这将输出详细的安全操作日志，帮助诊断问题。
-
-## 🛡️ 安全最佳实践
-
-### 1. 密钥管理
-- 定期备份密钥文件
-- 不要在不安全的网络上传输私钥
-- 定期轮换会话密钥
-
-### 2. 网络安全
-- 在生产环境中始终启用严格模式
-- 定期验证节点身份
-- 监控异常的连接行为
-
-### 3. 文件传输
-- 大文件传输前先验证目标节点身份
-- 传输敏感文件时使用额外的访问控制
-- 定期清理临时文件
-
-### 4. 监控和审计
-- 定期检查安全状态
-- 记录所有安全相关事件
-- 监控信任级别变化
-
-## 📚 API参考
-
-### SecurityManager主要方法
-
-| 方法 | 描述 |
-|------|------|
-| `isSecurityEnabled()` | 检查安全功能是否启用 |
-| `setStrictMode(boolean)` | 设置严格模式 |
-| `getSecurityStatus()` | 获取安全状态摘要 |
-| `handleKeyExchange(String)` | 处理密钥交换 |
-| `sendSecureFile(...)` | 发送安全文件 |
-| `exportNodeCertificate()` | 导出节点证书 |
-
-### KeyManager主要方法
-
-| 方法 | 描述 |
-|------|------|
-| `hasSessionKey(String)` | 检查会话密钥 |
-| `hasPublicKey(String)` | 检查公钥 |
-| `getSessionKeyCount()` | 获取会话密钥数量 |
-| `getPublicKeyCount()` | 获取公钥数量 |
-
-### AuthenticationService主要方法
-
-| 方法 | 描述 |
-|------|------|
-| `authenticateNode(...)` | 验证节点身份 |
-| `getTrustLevel(String)` | 获取信任级别 |
-| `updateTrustLevel(...)` | 更新信任级别 |
-| `getAuthenticationStats()` | 获取验证统计 |
 
 ---
 
-## 📞 技术支持
+## ⚙️ Advanced Configuration
 
-如果您在使用安全功能时遇到问题，请：
+### Toggle Security
 
-1. 查看控制台输出的安全日志
-2. 检查密钥文件是否完整
-3. 验证网络连接状态
-4. 参考本指南的故障排除部分
+```java
+securityManager.setSecurityEnabled(false); // testing only
+securityManager.setSecurityEnabled(true);
+boolean isEnabled = securityManager.isSecurityEnabled();
+```
 
-安全功能为您的P2P聊天提供了企业级的保护，确保通信内容的机密性、完整性和可用性。
+### Key Rotation
+
+```java
+KeyManager km = securityManager.getKeyManager();
+
+km.removeSessionKey("old-node-id");
+SecretKey newKey = km.generateSessionKey();
+km.storeSessionKey("node-id", newKey);
+```
+
+### Housekeeping
+
+* **Every 5 min:** purge expired auth challenges
+* **Every 30 min:** print security stats
+* **On startup:** verify key file integrity
+
+---
+
+## 🔧 Troubleshooting
+
+**1) Key exchange failed**
+
+```
+[Security] Key exchange failed: target-node-id
+```
+
+Fix:
+
+* Ensure the target node is online
+* Confirm the target public key is correct
+* Retry the connection
+
+**2) Message decryption failed**
+
+```
+[Security] Incoming processing failed: decryption error
+```
+
+Fix:
+
+* Check that a session key exists
+* Validate the message format
+* Re-run key exchange
+
+**3) File encryption/transfer failed**
+
+```
+[SecureFile] Encryption failed: missing session key
+```
+
+Fix:
+
+* Establish a session key with the target
+* Trigger key exchange manually
+* Check file permissions
+
+### Debug Mode
+
+Enable verbose logs:
+
+```java
+-Djava.util.logging.level=FINE
+```
+
+---
+
+## 🛡️ Best Practices
+
+### 1) Key Management
+
+* Back up key files regularly
+* Never transmit private keys over insecure channels
+* Rotate session keys periodically
+
+### 2) Network Security
+
+* Keep **strict mode** enabled in production
+* Re-verify peer identities periodically
+* Monitor anomalous connection behavior
+
+### 3) File Transfer
+
+* Verify peer identity before large/sensitive transfers
+* Use extra access controls for sensitive files
+* Clean up temporary files regularly
+
+### 4) Monitoring & Audit
+
+* Review security status routinely
+* Log all security-relevant events
+* Track trust level changes
+
+---
+
+## 📚 API Reference
+
+### `SecurityManager` (main)
+
+| Method                      | Description                    |
+| --------------------------- | ------------------------------ |
+| `isSecurityEnabled()`       | Check if security is enabled   |
+| `setStrictMode(boolean)`    | Enforce encrypted-only traffic |
+| `getSecurityStatus()`       | Summary of security state      |
+| `handleKeyExchange(String)` | Run a key exchange with a peer |
+| `sendSecureFile(...)`       | Send an encrypted file         |
+| `exportNodeCertificate()`   | Export the node’s certificate  |
+
+### `KeyManager`
+
+| Method                  | Description                  |
+| ----------------------- | ---------------------------- |
+| `hasSessionKey(String)` | Check for a session key      |
+| `hasPublicKey(String)`  | Check for a known public key |
+| `getSessionKeyCount()`  | Number of session keys       |
+| `getPublicKeyCount()`   | Number of known public keys  |
+
+### `AuthenticationService`
+
+| Method                     | Description              |
+| -------------------------- | ------------------------ |
+| `authenticateNode(...)`    | Authenticate a node      |
+| `getTrustLevel(String)`    | Get a node’s trust score |
+| `updateTrustLevel(...)`    | Set/update trust score   |
+| `getAuthenticationStats()` | View auth statistics     |
+
+---
+
+## 📞 Support
+
+If you encounter issues:
+
+1. Check security logs in the console
+2. Verify key files are intact
+3. Confirm network connectivity
+4. See the Troubleshooting section above
+
+These security features provide enterprise-grade protection for your P2P chat—ensuring confidentiality, integrity, and availability.
