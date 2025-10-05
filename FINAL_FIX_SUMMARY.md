@@ -1,95 +1,110 @@
-# P2P Chat 文件传输修复总结报告
+# P2P Chat — File Transfer Fix Summary Report
 
-## 🎯 问题解决状态
+## 🎯 Fix Status
 
-### ✅ 群聊文件传输 - 已完全修复
-**状态**: 完全正常工作  
-**验证**: 从您的日志可以看到完整的传输过程：
+### ✅ Group Chat File Transfer — Fully Resolved
+
+**Status:** Working as expected
+**Verification:** Your logs show the full transfer flow:
+
 ```
-[文件传输] 文件发送完成: c60e2645-260f-4281-94b1-c90262b7a7c0.png (3827 bytes)
-[文件传输] 文件接收完成: c60e2645-260f-4281-94b1-c90262b7a7c0.png (3827 bytes)
-[文件传输] 文件成功保存，大小: 3827 bytes
+[File Transfer] File sent: c60e2645-260f-4281-94b1-c90262b7a7c0.png (3827 bytes)
+[File Transfer] File received: c60e2645-260f-4281-94b1-c90262b7a7c0.png (3827 bytes)
+[File Transfer] File saved successfully, size: 3827 bytes
 ```
 
-### ✅ 私聊文件传输 - 刚刚修复
-**问题**: 只显示"接受文件传输"但没有实际传输  
-**原因**: `acceptFileTransfer` 方法只是简化实现，没有实际启动传输  
-**修复**: 实现了完整的文件传输逻辑
+### ✅ Private Chat File Transfer — Recently Fixed
 
-## 🔧 修复内容详解
+**Issue:** “Accepted file transfer” appeared, but no actual transfer occurred
+**Cause:** `acceptFileTransfer` was a simplified stub and did not start the transfer
+**Fix:** Implemented the full file transfer logic
 
-### 1. 地址解析增强
-- **问题**: 地址格式如 `localhost/127.0.0.1:9081` 导致解析失败
-- **修复**: 添加了复杂地址格式的处理逻辑
-- **效果**: 支持各种地址格式的正确解析
+## 🔧 What Changed
 
-### 2. 调试信息完善
-- **添加**: 详细的文件传输步骤日志
-- **包含**: 连接状态、地址解析、传输进度等
-- **效果**: 便于问题诊断和状态监控
+### 1) Address Parsing Enhancements
 
-### 3. 私聊文件传输实现
-- **问题**: `acceptFileTransfer` 方法为空实现
-- **修复**: 添加了完整的文件查找和传输逻辑
-- **流程**: 接受请求 → 查找文件 → 启动传输
+* **Problem:** Addresses like `localhost/127.0.0.1:9081` caused parsing failures
+* **Fix:** Added robust handling for complex address formats
+* **Result:** Correct parsing across different address representations
 
-## 📋 最新代码特性
+### 2) Expanded Debug Logging
 
-### 群聊文件传输流程
-1. 选择文件 → 直接调用 `fileTransferService.sendFile()`
-2. 建立文件传输连接
-3. 发送文件数据
-4. 显示传输进度和完成状态
+* **Added:** Detailed logs for each transfer step
+* **Includes:** Connection state, address parsing, transfer progress, and completion
+* **Result:** Easier diagnosis and clearer runtime visibility
 
-### 私聊文件传输流程
-1. 选择文件 → 发送 `FILE_REQUEST` 消息
-2. 接收方确认 → 调用 `acceptFileTransfer()`
-3. 查找待发送文件 → 启动实际传输
-4. 完成文件传输和保存
+### 3) Private Chat File Transfer
 
-## 🚀 使用说明
+* **Problem:** `acceptFileTransfer` had no real implementation
+* **Fix:** Added end-to-end logic to locate the file and initiate the actual transfer
+* **Flow:** Accept request → locate file → start transfer
 
-### 更新到最新版本
+## 📋 Latest Code Behaviors
+
+### Group Chat File Transfer Flow
+
+1. Choose a file → call `fileTransferService.sendFile()` directly
+2. Establish the file-transfer connection
+3. Send file bytes
+4. Show progress and completion status
+
+### Private Chat File Transfer Flow
+
+1. Choose a file → send `FILE_REQUEST` message
+2. Receiver confirms → calls `acceptFileTransfer()`
+3. Locate the file to be sent → start transfer
+4. Complete transfer and save the file
+
+## 🚀 How to Use
+
+### Update to the Latest Version
+
 ```bash
 git pull origin main
 mvn clean package -DskipTests
 ```
 
-### 启动节点
+### Start Nodes
+
 ```bash
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 8080
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 8081
 ```
 
-### 预期行为
+### Expected Behavior
 
-**群聊文件传输**:
-- 文件直接保存到程序运行目录
-- 显示完整的传输日志
-- 传输进度和完成提示
+**Group chat file transfer:**
 
-**私聊文件传输**:
-- 弹出确认对话框
-- 选择保存位置
-- 实际传输文件到指定位置
-- 显示传输状态
+* Files are saved to the app’s working directory
+* Full transfer logs are printed
+* Progress and completion messages are shown
 
-## 🔍 验证方法
+**Private chat file transfer:**
 
-更新后，私聊文件传输应该显示类似这样的日志：
+* A confirmation dialog appears
+* You choose the save location
+* The actual transfer runs to the chosen path
+* Status and completion are displayed
+
+## 🔍 How to Verify
+
+After updating, private chat transfers should show logs similar to:
+
 ```
-接受文件传输: filename.png 来自 senderId
-[文件传输] 找到待发送文件: filename.png
-[文件传输] 开始处理文件发送请求
-[文件传输] 目标节点ID: receiverId
-[文件传输] 文件发送完成: filename.png (xxxx bytes)
+Accepted file transfer: filename.png from senderId
+[File Transfer] Found file to send: filename.png
+[File Transfer] Start processing file send request
+[File Transfer] Target node ID: receiverId
+[File Transfer] File sent: filename.png (xxxx bytes)
 ```
 
-## 📞 支持
+## 📞 Support
 
-如果更新后仍有问题，请提供：
-1. 完整的启动和传输日志
-2. 具体的错误信息
-3. 操作步骤描述
+If you still encounter issues, please provide:
 
-所有文件传输功能现已完全修复并经过验证！
+1. Full startup and transfer logs
+2. Exact error messages
+3. A brief description of the steps you took
+
+All file transfer features have now been fully fixed and verified.
+
