@@ -1,173 +1,172 @@
-# 测试工具故障排除指南
+# Testing Tools Troubleshooting Guide
 
-## 🚨 常见问题
+## 🚨 Common Issues
 
-### 问题1：双击脚本后命令行闪退
+### Issue 1: Command window flashes and closes after double-clicking the script
 
-**症状：** 双击 `multi-gui-test.bat` 后，命令行窗口一闪而过
+**Symptoms：** After double-clicking multi-gui-test.bat, the command window flashes briefly and closes.
 
-**原因：** 脚本遇到错误后立即退出
+**Reason：** The script exits immediately upon encountering an error.
 
-**解决方案：**
-1. **使用诊断工具：**
+**Solution：**
+1. **Use Diagnostic Tools：**
    ```cmd
-   # 双击运行
+   # Double-Click to Run
    test-diagnosis.bat
    ```
 
-2. **使用调试版本：**
+2. **Use the Debug Version：**
    ```cmd
-   # 双击运行
+   # Double-Click to Run
    multi-gui-test-debug.bat
    ```
 
-3. **手动运行：**
+3. **Manual Run：**
    ```cmd
-   # 在命令提示符中运行
+   # Run in Command Prompt
    cd testing
    multi-gui-test.bat
    ```
 
-### 问题2：找不到JAR文件
+### Issue 2: JAR File Not Found
 
-**错误信息：** `Cannot find JAR file!`
+**Error Message：** `Cannot find JAR file!`
 
-**解决方案：**
-1. **确保项目已编译：**
+**Solution：**
+1. **Ensure the project is compiled：**
    ```cmd
-   # 在主项目目录运行
+   # Run in the main project directory
    mvn clean package
    ```
 
-2. **检查目录结构：**
+2. **Check the directory structure：**
    ```
    P2pChat/
-   ├── testing/          ← 您应该在这里
+   ├── testing/          ← You should be here
    └── target/
        └── p2p-chat-1.0-SNAPSHOT.jar
    ```
 
-### 问题3：JavaFX不可用
+### Issue 3: JavaFX Unavailable
 
-**错误信息：** `JavaFX not available!` 或 `Module javafx.controls not found`
+**Error Message：** `JavaFX not available!` 或 `Module javafx.controls not found`
 
-**解决方案：**
-1. **检查JavaFX安装：**
+**solution：**
+1. **Check JavaFX Installation：**
    ```cmd
    ..\check-javafx.bat
    ```
 
-2. **安装包含JavaFX的Java：**
-   - 下载：https://www.azul.com/downloads/?package=jdk-fx
-   - 选择 "JDK FX" 版本
+2. **Install a Java Distribution that Includes JavaFX：**
+   - Install：https://www.azul.com/downloads/?package=jdk-fx
+   - choose "JDK FX" vision
 
-3. **使用CLI版本替代：**
+3. **Use the CLI Version as an Alternative：**
    ```cmd
    multi-cli-test.bat
    ```
 
-### 问题4：GUI窗口不出现
+### Issue 4: GUI Window Does Not Appear
 
-**症状：** 脚本运行成功，但没有GUI窗口出现
+**Symptoms:** The script runs successfully, but no GUI window appears.
 
-**解决方案：**
-1. **检查任务管理器：** 查看是否有Java进程在运行
-2. **检查防火墙：** 确保Java程序被允许
-3. **尝试单个节点：**
+**solution：**
+1. **Check Task Manager：**Check whether there is a Java process running.
+2. **Check the firewall settings.：** Ensure that the Java program is allowed to run.
+3. **Try running a single node.：**
    ```cmd
    java --module-path . --add-modules javafx.controls,javafx.fxml -jar ..\target\p2p-chat-1.0-SNAPSHOT.jar 8080
    ```
 
-### 问题5：端口被占用
+### Issue 5: Port Already in Use
 
-**错误信息：** `Address already in use` 或类似的端口错误
+**Error Message：** `Address already in use` Or similar port-related errors.
 
-**解决方案：**
-1. **关闭其他P2P Chat实例**
-2. **使用不同端口：**
+**solution：**
+1. **Close other P2P Chat instances.**
+2. **Use a different port：**
    ```cmd
-   # 手动指定端口
+   # Manually specify the port.
    java -jar ..\target\p2p-chat-1.0-SNAPSHOT.jar 9090
    ```
-3. **重启计算机**（如果问题持续）
+3. **Restart the computer**（If the problem persists）
 
-## 🔧 诊断工具
+## 🔧Diagnostic Tools
 
-### 1. 基本诊断
+### 1. Basic Diagnostics
 ```cmd
 test-diagnosis.bat
 ```
-检查：
-- JAR文件是否存在
-- Java是否安装
-- JavaFX是否可用
-- CLI版本是否工作
+Check:：
+- Whether the JAR file exists
+- Whether Java is installed
+- Whether JavaFX is available
+- Whether the CLI version works
 
-### 2. 详细调试
+### 2. Detailed Debugging
 ```cmd
 multi-gui-test-debug.bat
 ```
-提供：
-- 详细的执行步骤
-- 错误信息显示
-- 单节点测试选项
+Provide：
+- Detailed execution steps
+- Error message display
+- Single-node test option
 
-### 3. JavaFX专项检查
+### 3. JavaFX-Specific Check
 ```cmd
 ..\check-javafx.bat
 ```
-检查：
-- Java版本
-- JavaFX模块
-- 编译和运行测试
+Check：
+- Java Version
+- JavaFX Modules
+- Compile and Run Tests
 
-## 📋 手动测试步骤
+## 📋Manual Testing Steps
 
-如果自动脚本都失败，可以手动测试：
+If all automated scripts fail, you can perform manual testing:
 
-### 1. 测试CLI版本
+### 1.Test the CLI Version
 ```cmd
 cd testing
 java -cp ..\target\classes com.group7.chat.Main 8080
 ```
 
-### 2. 测试GUI版本
+### 2. Test the GUI Version
 ```cmd
 cd testing
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar ..\target\p2p-chat-1.0-SNAPSHOT.jar 8080
 ```
 
-### 3. 测试多个节点
+### 3. Test Multiple Nodes
 ```cmd
-# 第一个命令提示符
+# First Command Prompt
 java -cp ..\target\classes com.group7.chat.Main 8080
 
-# 第二个命令提示符
+# Second Command Prompt
 java -cp ..\target\classes com.group7.chat.Main 8081 localhost:8080
 ```
 
-## 🆘 获取帮助
+## 🆘 Get Help
 
-### 收集错误信息
-1. **运行诊断工具：** `test-diagnosis.bat`
-2. **截图错误信息**
-3. **记录Java版本：** `java -version`
-4. **记录操作系统版本**
+### Collect Error Information
+1. **Run Diagnostic Tools：** `test-diagnosis.bat`
+2. **Capture Error Screenshots**
+3. **Record the Java Version：** `java -version`
+4. **Record the Operating System Version**
 
-### 常见解决方案优先级
-1. ✅ **首先尝试：** CLI版本测试
-2. ✅ **然后尝试：** 安装JavaFX支持的Java
-3. ✅ **最后尝试：** 手动命令行运行
+###Priority of Common Solutions
+1. ✅ **Try First：** CLI Version Testing
+2. ✅ **Then Try：** Install Java with JavaFX Support
+3. ✅ **Finally Try：** Run Manually in Command Line
+### Alternative Solution
+If GUI testing consistently fails:
+- Use multi-cli-test.bat for CLI testing
+- Provides the same functionality, only with a different interface
+- More stable and offers better compatibility
 
-### 备选方案
-如果GUI测试始终失败：
-- 使用 `multi-cli-test.bat` 进行CLI测试
-- 功能完全相同，只是界面不同
-- 更稳定，兼容性更好
+## 💡 Preventive Measures
 
-## 💡 预防措施
-
-1. **确保项目编译：** 运行测试前先执行 `mvn clean package`
-2. **使用正确的Java：** 推荐使用包含JavaFX的Java发行版
-3. **从正确目录运行：** 确保在 `testing/` 目录中运行脚本
-4. **关闭其他实例：** 避免端口冲突
+1. **Ensure the Project is Compiled：** Run Before Testing `mvn clean package`
+2. **Use the Correct Java Version：** Recommend Using a Java Distribution with JavaFX
+3. **Run from the Correct Directory：**Ensure that scripts are run in the testing/ directory
+4. **Close Other Instances：** Avoid Port Conflicts
