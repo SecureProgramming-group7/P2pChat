@@ -1,155 +1,149 @@
-# JavaFX运行时问题解决方案
+# JavaFX Runtime Issue — Solutions
 
-## ❌ 错误信息
+## ❌ Error
+
 ```
-错误: 缺少 JavaFX 运行时组件, 需要使用该组件来运行此应用程序
+Error: JavaFX runtime components are missing, and are required to run this application
 ```
 
-## 🔍 问题原因
+## 🔍 Cause
 
-从Java 11开始，JavaFX不再包含在JDK中，即使我们的JAR文件包含了JavaFX库，某些Java版本仍然需要特殊的启动参数。
+Since Java 11, JavaFX is no longer bundled with the JDK. Even if your JAR includes JavaFX classes, some Java versions still require specific launch flags.
 
-## 🛠️ 解决方案
+## 🛠️ Solutions
 
-### 方案1：使用模块路径参数（推荐）
+### Option 1: Use module-path flags (Recommended)
 
 **Windows:**
+
 ```cmd
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar p2p-chat-1.0-SNAPSHOT.jar
 ```
 
 **Linux/Mac:**
+
 ```bash
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-### 方案2：下载并安装JavaFX SDK
+### Option 2: Install the JavaFX SDK
 
-1. **下载JavaFX SDK**:
-   - 访问: https://openjfx.io/
-   - 下载适合您系统的JavaFX SDK
-   - 解压到某个目录，例如: `C:\javafx-sdk-17.0.2`
+1. **Download JavaFX SDK:**
 
-2. **使用JavaFX SDK运行**:
+   * Visit [https://openjfx.io/](https://openjfx.io/)
+   * Download the SDK for your OS
+   * Extract, e.g. `C:\javafx-sdk-17.0.2`
+
+2. **Run with the SDK:**
+
 ```cmd
 java --module-path "C:\javafx-sdk-17.0.2\lib" --add-modules javafx.controls,javafx.fxml -jar p2p-chat-1.0-SNAPSHOT.jar
 ```
 
-### 方案3：使用命令行版本（无需JavaFX）
+### Option 3: Use the CLI build (no JavaFX)
 
-如果GUI版本无法运行，可以使用命令行版本：
+If the GUI won’t start:
 
-1. **确保项目已编译**:
+1. **Build the project:**
+
 ```cmd
 mvn clean compile
 ```
 
-2. **运行命令行版本**:
+2. **Run the CLI app:**
+
 ```cmd
-java -cp target/classes com.group7.chat.Main
+java -cp target\classes com.group7.chat.Main
 ```
 
-### 方案4：使用包含JavaFX的Java发行版
+### Option 4: Install a JDK that includes JavaFX
 
-下载并安装包含JavaFX的Java发行版：
-- **Azul Zulu FX**: https://www.azul.com/downloads/?package=jdk-fx
-- **Liberica JDK Full**: https://bell-sw.com/pages/downloads/
+* **Azul Zulu FX:** [https://www.azul.com/downloads/?package=jdk-fx](https://www.azul.com/downloads/?package=jdk-fx)
+* **Liberica JDK Full:** [https://bell-sw.com/pages/downloads/](https://bell-sw.com/pages/downloads/)
 
-## 🚀 快速解决脚本
+## 🚀 Quick-Run Scripts
 
-我将为您创建自动化脚本来解决这个问题。
+### Windows (run-with-javafx.bat)
 
-### Windows批处理脚本 (run-with-javafx.bat)
 ```batch
 @echo off
 echo Trying to run P2P Chat with JavaFX support...
 
-REM 方法1: 尝试使用模块路径
-echo Method 1: Using module path...
+REM Method 1: module path
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar p2p-chat-1.0-SNAPSHOT.jar
-if %ERRORLEVEL% EQU 0 goto :success
+if %ERRORLEVEL% EQU 0 goto :ok
 
-REM 方法2: 尝试直接运行
-echo Method 2: Direct execution...
+REM Method 2: direct
 java -jar p2p-chat-1.0-SNAPSHOT.jar
-if %ERRORLEVEL% EQU 0 goto :success
+if %ERRORLEVEL% EQU 0 goto :ok
 
-REM 方法3: 运行命令行版本
-echo Method 3: Running CLI version...
+REM Method 3: CLI
 java -cp target/classes com.group7.chat.Main
-if %ERRORLEVEL% EQU 0 goto :success
+if %ERRORLEVEL% EQU 0 goto :ok
 
-echo All methods failed. Please check JavaFX installation.
+echo All methods failed. Please check your JavaFX setup.
 goto :end
 
-:success
+:ok
 echo Application started successfully!
-
 :end
 pause
 ```
 
-### Linux/Mac脚本 (run-with-javafx.sh)
+### Linux/Mac (run-with-javafx.sh)
+
 ```bash
 #!/bin/bash
 echo "Trying to run P2P Chat with JavaFX support..."
 
-# 方法1: 尝试使用模块路径
-echo "Method 1: Using module path..."
+# Method 1: module path
 if java --module-path . --add-modules javafx.controls,javafx.fxml -jar p2p-chat-1.0-SNAPSHOT.jar; then
-    echo "Application started successfully!"
-    exit 0
+  echo "Application started successfully!"
+  exit 0
 fi
 
-# 方法2: 尝试直接运行
-echo "Method 2: Direct execution..."
+# Method 2: direct
 if java -jar p2p-chat-1.0-SNAPSHOT.jar; then
-    echo "Application started successfully!"
-    exit 0
+  echo "Application started successfully!"
+  exit 0
 fi
 
-# 方法3: 运行命令行版本
-echo "Method 3: Running CLI version..."
+# Method 3: CLI
 if java -cp target/classes com.group7.chat.Main; then
-    echo "Application started successfully!"
-    exit 0
+  echo "Application started successfully!"
+  exit 0
 fi
 
-echo "All methods failed. Please check JavaFX installation."
+echo "All methods failed. Please check your JavaFX installation."
 exit 1
 ```
 
-## 🔧 检查您的Java版本
+## 🔧 Check Your Java
 
-运行以下命令检查Java版本：
 ```cmd
 java -version
 ```
 
-**推荐的Java版本**:
-- Java 11 + 单独的JavaFX
-- Java 17 + 单独的JavaFX
-- 或使用包含JavaFX的发行版
+**Recommended setups:**
 
-## 📋 故障排除步骤
+* Java 11 + JavaFX SDK
+* Java 17 + JavaFX SDK
+* Or a JDK distribution that bundles JavaFX
 
-1. **检查Java版本**: `java -version`
-2. **尝试方案1**: 使用模块路径参数
-3. **如果失败**: 下载JavaFX SDK (方案2)
-4. **最后选择**: 使用命令行版本 (方案3)
+## 📋 Troubleshooting Steps
 
-## 💡 为什么会出现这个问题？
+1. Check Java version: `java -version`
+2. Try **Option 1** (module-path flags)
+3. If it fails, install the JavaFX SDK (Option 2)
+4. As a last resort, run the CLI build (Option 3)
 
-1. **Java模块系统**: Java 9+引入了模块系统
-2. **JavaFX分离**: 从Java 11开始，JavaFX不再包含在JDK中
-3. **模块路径**: 需要明确指定JavaFX模块的位置
+## 💡 Why this happens
 
-## ✅ 推荐解决方案
+1. **Java Module System:** introduced in Java 9.
+2. **JavaFX unbundled:** since Java 11, it’s separate from the JDK.
+3. **Module path:** you must explicitly point to JavaFX modules at runtime.
 
-**最简单的方法**:
-1. 下载Azul Zulu FX (包含JavaFX的Java)
-2. 或者使用我提供的启动脚本
+## ✅ Recommended
 
-**最可靠的方法**:
-1. 下载JavaFX SDK
-2. 使用完整的模块路径命令
+**Easiest:** install **Azul Zulu FX** (includes JavaFX) or use the provided launch scripts.
+**Most reliable:** install the **JavaFX SDK** and launch with the full `--module-path ... --add-modules ...` command.
