@@ -1,6 +1,6 @@
 # File Transfer Diagnostic Guide
 
-## 🔍 Current Analysis
+##  Current Analysis
 
 Based on the logs you shared, we identified the following issues:
 
@@ -29,7 +29,7 @@ After accepting a private-chat file, no downloaded file is found
 
 **Analysis:** The file-transfer request was accepted, but the actual data transfer did not complete.
 
-## 🚀 Resolution
+##  Resolution
 
 ### Step 1: Update to the latest version
 
@@ -72,7 +72,7 @@ If the issue remains after updating, please provide full debug logs, including:
 2. Complete logs from the receiver
 3. Any error messages
 
-## 🔧 Temporary Workarounds
+##  Temporary Workarounds
 
 If you can’t update immediately, try:
 
@@ -80,7 +80,7 @@ If you can’t update immediately, try:
 2. Ensure the nodes are fully connected before attempting the transfer
 3. Test with a smaller file (e.g., a text file)
 
-## 📋 Expected Outcome
+##  Expected Outcome
 
 After the fix, file transfer should:
 
