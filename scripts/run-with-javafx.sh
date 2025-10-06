@@ -12,7 +12,7 @@ echo
 echo "Trying to run P2P Chat with JavaFX support..."
 echo
 
-# 方法1: 尝试使用模块路径参数
+# Method 1: try using the module path
 echo "[Method 1] Using JavaFX module path..."
 if java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 2>/dev/null; then
     echo
@@ -22,7 +22,7 @@ if java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2
     exit 0
 fi
 
-# 方法2: 尝试直接运行JAR
+# Method 2: try running the JAR directly
 echo "[Method 2] Direct JAR execution..."
 if java -jar target/p2p-chat-1.0-SNAPSHOT.jar 2>/dev/null; then
     echo
@@ -32,7 +32,7 @@ if java -jar target/p2p-chat-1.0-SNAPSHOT.jar 2>/dev/null; then
     exit 0
 fi
 
-# 方法3: 检查是否有编译的类文件，运行命令行版本
+# Method 3: check for compiled classes and run the CLI version
 echo "[Method 3] Trying CLI version..."
 if [ -f "target/classes/com/group7/chat/Main.class" ]; then
     echo "Running command line version..."
@@ -47,7 +47,7 @@ else
     echo "Classes not found. Please run: mvn clean compile"
 fi
 
-# 所有方法都失败了
+# All methods failed
 echo
 echo "========================================"
 echo "All methods failed!"
@@ -62,3 +62,4 @@ echo "For more help, see: JAVAFX_RUNTIME_SOLUTIONS.md"
 echo
 
 exit 1
+
