@@ -1,6 +1,6 @@
 # P2P Chat Application — Issue Analysis and Fix Plan
 
-## 🐛 Issues Identified
+##  Issues Identified
 
 ### 1. Online Members Display
 
@@ -25,7 +25,7 @@
 * **Symptom:** Usernames appear as long numeric strings.
 * **Cause:** The full node ID is used as the display name instead of a shortened, friendly label.
 
-## 🔧 Remediation Plan
+##  Remediation Plan
 
 ### 1. Fix Node ID Display
 
@@ -48,7 +48,7 @@
 * Attach message IDs to prevent duplicates.
 * Improve online presence/state management.
 
-## 📋 Concrete Fix Steps
+##  Concrete Fix Steps
 
 1. **Modify `Node.java`:**
 
