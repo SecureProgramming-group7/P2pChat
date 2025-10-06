@@ -11,18 +11,18 @@ echo.
 echo [2] Checking available Java modules...
 java --list-modules | findstr javafx
 if %ERRORLEVEL% EQU 0 (
-    echo ✅ JavaFX modules found!
+    echo  JavaFX modules found!
 ) else (
-    echo ❌ No JavaFX modules found
+    echo  No JavaFX modules found
 )
 echo.
 
 echo [3] Testing JavaFX availability...
 java --module-path . --add-modules javafx.controls --version 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo ✅ JavaFX can be loaded successfully!
+    echo  JavaFX can be loaded successfully!
 ) else (
-    echo ❌ JavaFX cannot be loaded
+    echo  JavaFX cannot be loaded
 )
 echo.
 
@@ -39,15 +39,15 @@ echo } >> JavaFXTest.java
 
 javac --module-path . --add-modules javafx.controls JavaFXTest.java 2>nul
 if %ERRORLEVEL% EQU 0 (
-    echo ✅ JavaFX compilation successful!
+    echo  JavaFX compilation successful!
     java --module-path . --add-modules javafx.controls JavaFXTest 2>nul
     if %ERRORLEVEL% EQU 0 (
-        echo ✅ JavaFX runtime test successful!
+        echo  JavaFX runtime test successful!
     ) else (
-        echo ❌ JavaFX runtime test failed
+        echo  JavaFX runtime test failed
     )
 ) else (
-    echo ❌ JavaFX compilation failed
+    echo  JavaFX compilation failed
 )
 
 del JavaFXTest.java JavaFXTest.class 2>nul
@@ -56,8 +56,8 @@ echo.
 echo ========================================
 echo Summary:
 echo ========================================
-echo If you see ✅ marks above, JavaFX is properly installed.
-echo If you see ❌ marks, JavaFX is not available.
+echo If you see  marks above, JavaFX is properly installed.
+echo If you see  marks, JavaFX is not available.
 echo.
 echo To test P2P Chat GUI:
 echo   run: start-gui-only.bat
