@@ -1,6 +1,6 @@
 # P2P Chat — Deployment Guide
 
-## 🚀 Latest Update (2025-09-29)
+##  Latest Update (2025-09-29)
 
 The newest code, including all file-transfer fixes, has been pushed to GitHub.
 
@@ -47,7 +47,7 @@ java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-c
 java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-chat-1.0-SNAPSHOT.jar 8081
 ```
 
-## 🔍 Validate the Fix
+##  Validate the Fix
 
 ### Expected debug output
 
@@ -83,7 +83,7 @@ you’re still on an old build. Please:
 2. **Rebuild the project**
 3. **Run the newly generated JAR**
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Issue 1: Private-chat files don’t appear on disk
 
@@ -103,7 +103,7 @@ you’re still on an old build. Please:
 * Remove old build output: `rm -rf target`
 * Rebuild: `mvn clean package -DskipTests`
 
-## 📞 Support
+##  Support
 
 If problems persist, please provide:
 
