@@ -1,8 +1,8 @@
 # P2P Chat — File Transfer Fix Summary Report
 
-## 🎯 Fix Status
+##  Fix Status
 
-### ✅ Group Chat File Transfer — Fully Resolved
+###  Group Chat File Transfer — Fully Resolved
 
 **Status:** Working as expected
 **Verification:** Your logs show the full transfer flow:
@@ -13,13 +13,13 @@
 [File Transfer] File saved successfully, size: 3827 bytes
 ```
 
-### ✅ Private Chat File Transfer — Recently Fixed
+###  Private Chat File Transfer — Recently Fixed
 
 **Issue:** “Accepted file transfer” appeared, but no actual transfer occurred
 **Cause:** `acceptFileTransfer` was a simplified stub and did not start the transfer
 **Fix:** Implemented the full file transfer logic
 
-## 🔧 What Changed
+##  What Changed
 
 ### 1) Address Parsing Enhancements
 
@@ -39,7 +39,7 @@
 * **Fix:** Added end-to-end logic to locate the file and initiate the actual transfer
 * **Flow:** Accept request → locate file → start transfer
 
-## 📋 Latest Code Behaviors
+##  Latest Code Behaviors
 
 ### Group Chat File Transfer Flow
 
@@ -55,7 +55,7 @@
 3. Locate the file to be sent → start transfer
 4. Complete transfer and save the file
 
-## 🚀 How to Use
+##  How to Use
 
 ### Update to the Latest Version
 
@@ -86,7 +86,7 @@ java --module-path . --add-modules javafx.controls,javafx.fxml -jar target/p2p-c
 * The actual transfer runs to the chosen path
 * Status and completion are displayed
 
-## 🔍 How to Verify
+##  How to Verify
 
 After updating, private chat transfers should show logs similar to:
 
@@ -98,7 +98,7 @@ Accepted file transfer: filename.png from senderId
 [File Transfer] File sent: filename.png (xxxx bytes)
 ```
 
-## 📞 Support
+##  Support
 
 If you still encounter issues, please provide:
 
