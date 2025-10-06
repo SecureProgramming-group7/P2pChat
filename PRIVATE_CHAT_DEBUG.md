@@ -1,108 +1,133 @@
-# 私聊消息问题修复和调试指南
+# Private Messaging — Fix & Debugging Guide
 
-## 🐛 问题描述
+##  Problem Description
 
-用户报告两个问题：
-1. **显示问题**：私聊界面显示"与(一个不规则的字符串)开始私聊"
-2. **功能问题**：8081发送私聊到8080，8080没有接收到
+Users reported two issues:
 
-## ✅ 已修复的显示问题
+1. **Display issue:** The private chat view shows “Starting a private chat with (an irregular string)”.
+2. **Functionality issue:** 8081 sends a private message to 8080, but 8080 doesn’t receive it.
 
-### 1. 私聊窗口标题
-**修复前**：`"私聊 - " + targetMember.getNodeId()`
-**修复后**：`"私聊 - " + targetMember.getDisplayName()`
+##  Display Issues Fixed
 
-### 2. 欢迎消息
-**修复前**：`"开始与 " + targetMember.getNodeId() + " 的私聊"`
-**修复后**：`"开始与 " + targetMember.getDisplayName() + " 的私聊"`
+### 1. Private chat window title
 
-### 3. 系统消息
-**修复前**：`"已打开与 " + nodeId + " 的私聊窗口"`
-**修复后**：`"已打开与 " + member.getDisplayName() + " 的私聊窗口"`
+**Before:** `"Private Chat - " + targetMember.getNodeId()`
+**After:**  `"Private Chat - " + targetMember.getDisplayName()`
 
-现在私聊界面应该显示：**"开始与 Node_8080 的私聊"**
+### 2. Welcome message
 
-## 🔍 添加的调试功能
+**Before:** `"Starting a private chat with " + targetMember.getNodeId()`
+**After:**  `"Starting a private chat with " + targetMember.getDisplayName()"`
 
-为了诊断私聊消息无法接收的问题，我添加了详细的调试日志：
+### 3. System message
 
-### 1. 发送端日志
+**Before:** `"Opened a private chat window with " + nodeId`
+**After:**  `"Opened a private chat window with " + member.getDisplayName()`
+
+The private chat view should now display: **“Starting a private chat with Node_8080.”**
+
+##  Added Debugging Aids
+
+To diagnose why private messages weren’t being received, detailed debug logs were added:
+
+### 1. Sender-side log
+
 ```java
-// 在 Node.sendPrivateMessage() 中
-System.out.println("发送私聊消息: " + getDisplayName() + " -> " + targetNodeId.substring(0, 8) + "...: " + message);
+// In Node.sendPrivateMessage()
+System.out.println("Sending private message: " + getDisplayName()
+    + " -> " + targetNodeId.substring(0, 8) + "...: " + message);
 ```
 
-### 2. 接收端日志
+### 2. Receiver-side log
+
 ```java
-// 在 MessageRouter.processLocalAppMessage() 中
-System.out.println("处理本地私聊消息: " + message.getSenderId().substring(0, 8) + "... -> " + node.getDisplayName() + ": " + message.getContent());
+// In MessageRouter.processLocalAppMessage()
+System.out.println("Processing local private message: "
+    + message.getSenderId().substring(0, 8) + "... -> "
+    + node.getDisplayName() + ": " + message.getContent());
 ```
 
-### 3. 转发过程日志
+### 3. Forwarding-path logs
+
 ```java
-// 在 MessageRouter.forwardMessage() 中
-System.out.println("转发私聊消息，目标: " + targetNodeId.substring(0, 8) + "..., 当前连接数: " + node.getConnections().size());
-System.out.println("检查连接: " + connection.getAddress() + ", 远程ID: " + (remoteId != null ? remoteId.substring(0, 8) + "..." : "null"));
-System.out.println("找到直接连接，发送私聊消息到: " + connection.getAddress());
+// In MessageRouter.forwardMessage()
+System.out.println("Forwarding private message, target: "
+    + targetNodeId.substring(0, 8) + "..., current connections: "
+    + node.getConnections().size());
+System.out.println("Checking connection: " + connection.getAddress()
+    + ", remote ID: " + (remoteId != null ? remoteId.substring(0, 8) + "..." : "null"));
+System.out.println("Direct connection found; sending private message to: "
+    + connection.getAddress());
 ```
 
-## 🎯 测试和调试步骤
+##  Test & Debug Steps
 
-### 1. 启动测试
+### 1) Start the test
+
 ```cmd
 testing\gui-test.bat
-# 选择 "2. Two nodes"
+# Choose "2. Two nodes"
 ```
 
-### 2. 观察控制台输出
-启动后，控制台应该显示：
-- 节点启动信息
-- 连接建立过程
-- HELLO消息交换
+### 2) Watch the console output
 
-### 3. 测试私聊
-1. 在8081节点右键点击 "Node_8080"
-2. 选择"私聊"
-3. 发送消息 "Hello"
+After startup, the console should show:
 
-### 4. 预期的调试输出
-**发送端 (8081)**：
+* Node startup messages
+* Connection establishment
+* HELLO message exchange
+
+### 3) Test private messaging
+
+1. On the 8081 node, right-click **Node_8080**
+2. Choose **Private Chat**
+3. Send **Hello**
+
+### 4) Expected debug output
+
+**Sender (8081):**
+
 ```
-发送私聊消息: Node_8081 -> 12345678...: Hello
-转发私聊消息，目标: 12345678..., 当前连接数: 1
-检查连接: localhost:8080, 远程ID: 12345678...
-找到直接连接，发送私聊消息到: localhost:8080
+Sending private message: Node_8081 -> 12345678...: Hello
+Forwarding private message, target: 12345678..., current connections: 1
+Checking connection: localhost:8080, remote ID: 12345678...
+Direct connection found; sending private message to: localhost:8080
 ```
 
-**接收端 (8080)**：
+**Receiver (8080):**
+
 ```
-处理本地私聊消息: 87654321... -> Node_8080: Hello
+Processing local private message: 87654321... -> Node_8080: Hello
 ```
 
-## 🔧 可能的问题和解决方案
+##  Possible Issues & Fixes
 
-### 问题1：连接的远程节点ID为null
-**症状**：调试输出显示 "远程ID: null"
-**原因**：HELLO消息处理时没有正确设置 `connection.setRemoteNodeId()`
-**解决**：检查 `MessageRouter.handleHelloMessage()` 方法
+### Issue 1: Remote node ID on the connection is `null`
 
-### 问题2：没有找到直接连接
-**症状**：调试输出显示 "当前连接数: 0" 或找不到匹配的连接
-**原因**：连接建立失败或节点ID不匹配
-**解决**：检查连接状态和节点ID匹配逻辑
+**Symptom:** Debug output shows `remote ID: null`
+**Cause:** `connection.setRemoteNodeId()` wasn’t set during HELLO handling
+**Fix:** Check `MessageRouter.handleHelloMessage()`
 
-### 问题3：消息发送但未接收
-**症状**：发送端有日志，接收端没有日志
-**原因**：网络传输问题或消息序列化问题
-**解决**：检查网络连接和消息格式
+### Issue 2: No direct connection found
 
-## 📝 下一步调试
+**Symptom:** Debug shows `current connections: 0` or no match for the target ID
+**Cause:** Connection not established or node ID mismatch
+**Fix:** Verify the connection state and the node-ID matching logic
 
-如果问题仍然存在，请：
+### Issue 3: Message sent but not received
 
-1. **运行测试并查看控制台输出**
-2. **记录完整的调试日志**
-3. **检查是否有错误信息**
-4. **确认连接状态和节点ID匹配**
+**Symptom:** Sender logs appear; receiver logs don’t
+**Cause:** Transport issue or message serialization problem
+**Fix:** Inspect the network connection and message format
 
-这些调试信息将帮助我们快速定位问题的根本原因。
+##  Next Steps for Debugging
+
+If the issue persists:
+
+1. **Run the test and review the console output**
+2. **Capture the full debug logs**
+3. **Note any error messages**
+4. **Confirm connection state and node-ID matching**
+
+These details will help quickly pinpoint the root cause.
+
