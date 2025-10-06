@@ -1,6 +1,6 @@
 # File Transfer Issue Fix Report
 
-## 🐛 Problem Analysis
+##  Problem Analysis
 
 ### Original Issue
 
@@ -28,7 +28,7 @@ File send failed: /127.0.0.1
    * The “broadcast” mode was not implemented correctly.
    * It should send to all connected peers, rather than using an incorrect address.
 
-## ✅ Fix Plan
+##  Fix Plan
 
 ### 1) Correct address retrieval
 
@@ -66,7 +66,7 @@ if ("broadcast".equals(targetNodeId)) {
 * Convert `localhost` to `127.0.0.1` consistently.
 * Ensure a uniform address format.
 
-## 🎯 Expected Behavior
+##  Expected Behavior
 
 After the fix, file transfer should:
 
@@ -88,7 +88,7 @@ After the fix, file transfer should:
    * Complete the transfer successfully.
    * Display a success message in the GUI.
 
-## 🔧 Test Recommendations
+##  Test Recommendations
 
 1. **Start two nodes**
 2. **Ensure the connection is established**
@@ -99,7 +99,7 @@ After the fix, file transfer should:
    * You should see progress updates
    * You should see a transfer completion message
 
-## 📋 Related Files
+##  Related Files
 
 * `FileTransferService.java` — main fixes
 * `PeerConnection.java` — provides remote address info
@@ -107,7 +107,7 @@ After the fix, file transfer should:
 
 The fix has been applied, and file transfer should now work as expected.
 
-## 🚀 Final Verification
+##  Final Verification
 
 End-to-end verification was performed using the dedicated automation **`FileTransferTest.java`**. Results confirm the file transfer feature is fully restored.
 
