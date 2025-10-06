@@ -14,7 +14,7 @@
     </properties>
 
     <dependencies>
-        <!-- JavaFX 依赖 -->
+        <!-- JavaFX dependencies -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -26,7 +26,7 @@
             <version>17.0.2</version>
         </dependency>
         
-        <!-- JSON 处理库 -->
+        <!-- JSON processing library -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -46,7 +46,7 @@
                 </configuration>
             </plugin>
             
-            <!-- JavaFX Maven 插件 -->
+            <!-- JavaFX Maven plugin -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -56,7 +56,7 @@
                 </configuration>
             </plugin>
             
-            <!-- Maven Shade 插件 - 创建包含所有依赖的可执行JAR -->
+            <!-- Maven Shade plugin - creates an executable JAR with all dependencies -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -81,3 +81,4 @@
         </plugins>
     </build>
 </project>
+
